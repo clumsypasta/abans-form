@@ -1,0 +1,68 @@
+"use client"
+
+import * as React from "react"
+import { cn } from "@/lib/utils"
+
+export interface FloatingTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  label: string
+  error?: string
+}
+
+const FloatingTextarea = React.forwardRef<HTMLTextAreaElement, FloatingTextareaProps>(
+  ({ className, label, error, ...props }, ref) => {
+    const [focused, setFocused] = React.useState(false)
+    const [hasValue, setHasValue] = React.useState(false)
+
+    // Check for value on mount and when props.value changes
+    React.useEffect(() => {
+      setHasValue(Boolean(props.value))
+    }, [props.value])
+
+    const handleFocus = () => setFocused(true)
+
+    const handleBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+      setFocused(false)
+      setHasValue(Boolean(e.target.value))
+    }
+
+    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setHasValue(Boolean(e.target.value))
+      if (props.onChange) {
+        props.onChange(e)
+      }
+    }
+
+    const shouldLabelFloat = focused || hasValue || Boolean(props.value) || Boolean(props.defaultValue)
+
+    return (
+      <div className="relative">
+        <textarea
+          className={cn(
+            "peer w-full px-4 text-base bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-transparent resize-none",
+            shouldLabelFloat ? "pt-6 pb-2" : "py-4",
+            error && "border-red-500 focus:ring-red-500",
+            className,
+          )}
+          placeholder=" "
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onChange={handleChange}
+          ref={ref}
+          {...props}
+        />
+        <label
+          className={cn(
+            "absolute left-4 transition-all duration-200 pointer-events-none text-gray-500 dark:text-gray-400",
+            shouldLabelFloat ? "top-2 text-xs font-medium text-blue-600 dark:text-blue-400" : "top-4 text-base",
+          )}
+        >
+          {label}
+        </label>
+        {error && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>}
+      </div>
+    )
+  },
+)
+FloatingTextarea.displayName = "FloatingTextarea"
+
+export { FloatingTextarea }
