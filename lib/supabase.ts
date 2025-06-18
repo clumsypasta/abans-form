@@ -1,13 +1,13 @@
 import { createClient } from "@supabase/supabase-js"
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co"
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-key"
+const supabaseUrl = "https://yytkxbrofmvizianbgqy.supabase.co"
+const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5dGt4YnJvZm12aXppYW5iZ3F5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAxNDE4NTIsImV4cCI6MjA2NTcxNzg1Mn0.BKugrHBXcViOWVyPhkZkf_r5HCHIADMW4Dvpcik--VI"
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Add a function to check if Supabase is properly configured
 export const isSupabaseConfigured = () => {
-  return process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  return supabaseUrl && supabaseAnonKey
 }
 
 export type InternshipFormData = {
