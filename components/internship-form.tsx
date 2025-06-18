@@ -23,9 +23,9 @@ import { SuccessScreen } from "./success-screen"
 
 const formSchema = z.object({
   // Personal Information
-  first_name: z.string().min(1, "First name is required"),
+  first_name: z.string().optional(),
   middle_name: z.string().optional(),
-  last_name: z.string().min(1, "Last name is required"),
+  last_name: z.string().optional(),
   employee_code: z.string().optional(),
   father_husband_name: z.string().optional(),
   department: z.string().optional(),
@@ -36,11 +36,11 @@ const formSchema = z.object({
   present_address: z.string().optional(),
   permanent_address: z.string().optional(),
   phone_residence: z.string().optional(),
-  phone_mobile: z.string().min(1, "Mobile number is required"),
+  phone_mobile: z.string().optional(),
   marital_status: z.string().optional(),
   nationality: z.string().optional(),
   blood_group: z.string().optional(),
-  personal_email: z.string().email("Valid email is required"),
+  personal_email: z.string().optional(),
   uan: z.string().optional(),
   last_pf_no: z.string().optional(),
 
@@ -110,25 +110,22 @@ const formSchema = z.object({
     )
     .default([]),
 
-  // References (2 required)
+  // References
   references: z
     .array(
       z.object({
-        name: z.string().min(1, "Name is required"),
-        designation: z.string().min(1, "Designation is required"),
-        company: z.string().min(1, "Company is required"),
-        address: z.string().min(1, "Address is required"),
-        contact_no: z.string().min(1, "Contact number is required"),
-        email: z.string().email("Valid email is required"),
+        name: z.string().optional(),
+        designation: z.string().optional(),
+        company: z.string().optional(),
+        address: z.string().optional(),
+        contact_no: z.string().optional(),
+        email: z.string().optional(),
       }),
     )
-    .min(2, "At least 2 references are required")
     .default([]),
 
   // Agreement
-  agreement_accepted: z.boolean().refine((val) => val === true, {
-    message: "You must accept the terms and conditions",
-  }),
+  agreement_accepted: z.boolean().default(false),
 })
 
 type FormData = z.infer<typeof formSchema>
@@ -196,18 +193,12 @@ export default function InternshipForm() {
   const saveAndProceed = async () => {
     setIsSaving(true)
     try {
-      const isValid = await form.trigger()
-      if (isValid) {
-        setCompletedSections((prev) => new Set([...prev, currentSection]))
-        setSaveMessage("Section saved successfully!")
-        setTimeout(() => setSaveMessage(""), 3000)
+      setCompletedSections((prev) => new Set([...prev, currentSection]))
+      setSaveMessage("Section saved successfully!")
+      setTimeout(() => setSaveMessage(""), 3000)
 
-        if (currentSection < sections.length - 1) {
-          setCurrentSection(currentSection + 1)
-        }
-      } else {
-        setSaveMessage("Please fill in all required fields")
-        setTimeout(() => setSaveMessage(""), 3000)
+      if (currentSection < sections.length - 1) {
+        setCurrentSection(currentSection + 1)
       }
     } catch (error) {
       setSaveMessage("Error saving section")
@@ -462,7 +453,7 @@ export default function InternshipForm() {
                   ) : (
                     <Button
                       type="submit"
-                      disabled={isSubmitting || !form.watch("agreement_accepted")}
+                      disabled={isSubmitting}
                       className="rounded-full px-8 py-3 bg-green-500 hover:bg-green-600 disabled:opacity-50"
                     >
                       {isSubmitting ? (
