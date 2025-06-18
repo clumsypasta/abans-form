@@ -7,6 +7,7 @@ import { FloatingInput } from "@/components/ui/floating-input"
 import { FloatingTextarea } from "@/components/ui/floating-textarea"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
+import { NomineeSection } from "./nominee-section"
 
 interface WorkExperienceSectionProps {
   form: UseFormReturn<any>
@@ -130,6 +131,12 @@ export function WorkExperienceSection({ form }: WorkExperienceSectionProps) {
           )}
         </>
       )}
+
+      {/* Nominee Details Section */}
+      <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Nominee Details</h3>
+        <NomineeSection form={form} />
+      </div>
     </div>
   )
 }

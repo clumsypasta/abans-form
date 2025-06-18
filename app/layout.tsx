@@ -6,8 +6,8 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "ABANS Group - Internship Onboarding",
-  description: "Digital internship onboarding form for ABANS Group",
+  title: "ABANS Group - E-Joining Formalities",
+  description: "Digital e-joining formalities form for ABANS Group",
     generator: 'v0.dev'
 }
 

@@ -134,13 +134,12 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>
 
 const sections = [
-  { id: "personal", title: "Personal Information", description: "Basic personal details" },
-  { id: "nominee", title: "Nominee Details", description: "Emergency contact information" },
+  { id: "personal", title: "Personal Details", description: "Basic personal details" },
   { id: "languages", title: "Languages Known", description: "Language proficiency" },
-  { id: "family", title: "Family Background", description: "Family members and dependants" },
+  { id: "family", title: "Family Details", description: "Family members and dependants" },
   { id: "academic", title: "Academic Qualifications", description: "Educational background" },
   { id: "professional", title: "Professional Qualifications", description: "Certifications and training" },
-  { id: "work", title: "Work Experience", description: "Employment history" },
+  { id: "work", title: "Work Experience", description: "Employment history and nominee details" },
   { id: "reference", title: "References", description: "Professional references (2 required)" },
 ]
 
@@ -275,19 +274,23 @@ export default function InternshipForm() {
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-4xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <img src="/images/abans-logo.png" alt="ABANS Group" className="h-8 w-auto" />
-              <div>
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white">Internship Application</h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">ABANS Group</p>
-              </div>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">E-Joining Formalities</h1>
+              <p className="text-sm text-gray-600 dark:text-gray-400">ABANS Group</p>
             </div>
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-            >
-              {theme === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
-            </button>
+            <div className="flex items-center gap-4">
+              <img 
+                src={theme === "light" ? "/images/abans-logo-light.png" : "/images/abans-logo.png"} 
+                alt="ABANS Group" 
+                className="h-8 w-auto" 
+              />
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              >
+                {theme === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -296,12 +299,12 @@ export default function InternshipForm() {
       <div className="sticky top-[73px] z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-4xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 flex-wrap">
               {sections.map((section, index) => (
                 <button
                   key={section.id}
                   onClick={() => goToSection(index)}
-                  className={`flex items-center justify-center w-10 h-10 rounded-full text-sm font-semibold transition-all duration-300 ${
+                  className={`flex items-center justify-center px-3 py-2 rounded-full text-xs font-semibold transition-all duration-300 whitespace-nowrap ${
                     completedSections.has(index)
                       ? "bg-green-500 text-white shadow-lg"
                       : index === currentSection
@@ -309,7 +312,7 @@ export default function InternshipForm() {
                         : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600"
                   }`}
                 >
-                  {completedSections.has(index) ? <Check className="w-5 h-5" /> : index + 1}
+                  {completedSections.has(index) ? <Check className="w-4 h-4" /> : `${index + 1} ${section.title}`}
                 </button>
               ))}
             </div>
@@ -381,13 +384,12 @@ export default function InternshipForm() {
                   {currentSection === 0 && (
                     <PersonalInfoSection form={form} photoFile={photoFile} setPhotoFile={setPhotoFile} />
                   )}
-                  {currentSection === 1 && <NomineeSection form={form} />}
-                  {currentSection === 2 && <LanguagesSection form={form} />}
-                  {currentSection === 3 && <FamilySection form={form} />}
-                  {currentSection === 4 && <AcademicSection form={form} />}
-                  {currentSection === 5 && <ProfessionalSection form={form} />}
-                  {currentSection === 6 && <WorkExperienceSection form={form} />}
-                  {currentSection === 7 && <ReferenceSection form={form} />}
+                  {currentSection === 1 && <LanguagesSection form={form} />}
+                  {currentSection === 2 && <FamilySection form={form} />}
+                  {currentSection === 3 && <AcademicSection form={form} />}
+                  {currentSection === 4 && <ProfessionalSection form={form} />}
+                  {currentSection === 5 && <WorkExperienceSection form={form} />}
+                  {currentSection === 6 && <ReferenceSection form={form} />}
                 </motion.div>
               </AnimatePresence>
 
@@ -410,7 +412,7 @@ export default function InternshipForm() {
                       </label>
                       <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                         I hereby declare that the information furnished above is true to the best of my knowledge and
-                        belief. I understand that any false information may lead to the rejection of my application.
+                        belief. I understand that any false information may lead to the termination of the employment.
                       </p>
                     </div>
                   </div>
