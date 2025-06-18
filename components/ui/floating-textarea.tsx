@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -9,7 +10,7 @@ export interface FloatingTextareaProps extends React.TextareaHTMLAttributes<HTML
 }
 
 const FloatingTextarea = React.forwardRef<HTMLTextAreaElement, FloatingTextareaProps>(
-  ({ className, label, error, ...props }, ref) => {
+  ({ className, label, error, placeholder, ...props }, ref) => {
     const [focused, setFocused] = React.useState(false)
     const [hasValue, setHasValue] = React.useState(false)
 
@@ -32,18 +33,18 @@ const FloatingTextarea = React.forwardRef<HTMLTextAreaElement, FloatingTextareaP
       }
     }
 
-    const shouldLabelFloat = focused || hasValue || Boolean(props.value) || Boolean(props.defaultValue)
+    const shouldLabelFloat = focused || hasValue || Boolean(props.value) || Boolean(props.defaultValue) || Boolean(placeholder)
 
     return (
       <div className="relative">
         <textarea
           className={cn(
-            "peer w-full px-4 text-base bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-transparent resize-none",
+            "peer w-full px-4 text-base bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-900 dark:text-gray-100",
             shouldLabelFloat ? "pt-6 pb-2" : "py-4",
             error && "border-red-500 focus:ring-red-500",
             className,
           )}
-          placeholder=" "
+          placeholder={shouldLabelFloat && focused ? placeholder : ""}
           onFocus={handleFocus}
           onBlur={handleBlur}
           onChange={handleChange}
@@ -52,8 +53,10 @@ const FloatingTextarea = React.forwardRef<HTMLTextAreaElement, FloatingTextareaP
         />
         <label
           className={cn(
-            "absolute left-4 transition-all duration-200 pointer-events-none text-gray-500 dark:text-gray-400",
-            shouldLabelFloat ? "top-2 text-xs font-medium text-blue-600 dark:text-blue-400" : "top-4 text-base",
+            "absolute left-4 transition-all duration-200 pointer-events-none select-none bg-white dark:bg-gray-800 px-1 rounded",
+            shouldLabelFloat
+              ? "top-0 -translate-y-1/2 text-xs font-medium text-blue-600 dark:text-blue-400 z-10"
+              : "top-4 text-base text-gray-500 dark:text-gray-400",
           )}
         >
           {label}
