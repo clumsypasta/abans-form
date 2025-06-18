@@ -60,40 +60,40 @@ const formSchema = z.object({
   languages_known: z
     .array(
       z.object({
-        language: z.string(),
-        read: z.boolean(),
-        write: z.boolean(),
-        speak: z.boolean(),
+        language: z.string().optional(),
+        read: z.boolean().optional(),
+        write: z.boolean().optional(),
+        speak: z.boolean().optional(),
       }),
     )
     .default([]),
   family_dependants: z
     .array(
       z.object({
-        name: z.string(),
-        relationship: z.string(),
-        mobile: z.string(),
-        occupation: z.string(),
+        name: z.string().optional(),
+        relationship: z.string().optional(),
+        mobile: z.string().optional(),
+        occupation: z.string().optional(),
       }),
     )
     .default([]),
   academic_qualifications: z
     .array(
       z.object({
-        degree: z.string(),
-        university: z.string(),
-        passing_year: z.string(),
-        percentage: z.string(),
+        degree: z.string().optional(),
+        university: z.string().optional(),
+        passing_year: z.string().optional(),
+        percentage: z.string().optional(),
       }),
     )
     .default([]),
   professional_qualifications: z
     .array(
       z.object({
-        certification: z.string(),
-        institute: z.string(),
-        year: z.string(),
-        percentage: z.string(),
+        certification: z.string().optional(),
+        institute: z.string().optional(),
+        year: z.string().optional(),
+        percentage: z.string().optional(),
       }),
     )
     .default([]),
@@ -101,11 +101,11 @@ const formSchema = z.object({
   work_experience: z
     .array(
       z.object({
-        organization: z.string(),
-        type: z.string(),
-        duration: z.string(),
-        designation: z.string(),
-        job_profile: z.string(),
+        organization: z.string().optional(),
+        type: z.string().optional(),
+        duration: z.string().optional(),
+        designation: z.string().optional(),
+        job_profile: z.string().optional(),
       }),
     )
     .default([]),
@@ -152,6 +152,7 @@ export default function InternshipForm() {
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
+    mode: "onSubmit",
     defaultValues: {
       company_name: "ABANS Group",
       languages_known: [],
@@ -218,6 +219,13 @@ export default function InternshipForm() {
   }
 
   const onSubmit = async (data: FormData) => {
+    // Only check terms and conditions
+    if (!data.agreement_accepted) {
+      setSaveMessage("Please accept the terms and conditions to submit the form")
+      setTimeout(() => setSaveMessage(""), 3000)
+      return
+    }
+
     setIsSubmitting(true)
     try {
       if (!isSupabaseConfigured()) {
@@ -453,7 +461,7 @@ export default function InternshipForm() {
                   ) : (
                     <Button
                       type="submit"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !form.watch("agreement_accepted")}
                       className="rounded-full px-8 py-3 bg-green-500 hover:bg-green-600 disabled:opacity-50"
                     >
                       {isSubmitting ? (
