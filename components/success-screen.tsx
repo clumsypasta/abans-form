@@ -29,10 +29,9 @@ export function SuccessScreen() {
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-              <h1 className="text-3xl font-bold text-white mb-4">Application Submitted Successfully!</h1>
+              <h1 className="text-3xl font-bold text-white mb-4">Joining Formality Form Submitted Successfully!</h1>
               <p className="text-[#C0C0C0] text-lg mb-6">
-                Thank you for your interest in joining ABANS Group. Your internship application has been received and is
-                being processed.
+                Welcome to ABANS Group! Your joining formality form has been successfully submitted and is now being processed by our HR team.
               </p>
             </motion.div>
 
@@ -48,19 +47,19 @@ export function SuccessScreen() {
                   <div className="w-6 h-6 bg-[#00BCD4] rounded-full flex items-center justify-center text-white text-sm font-bold mt-0.5">
                     1
                   </div>
-                  <p className="text-[#C0C0C0]">Our HR team will review your application within 3-5 business days</p>
+                  <p className="text-[#C0C0C0]">Your information will be processed and added to our HR records within 2-3 business days</p>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-6 h-6 bg-[#00BCD4] rounded-full flex items-center justify-center text-white text-sm font-bold mt-0.5">
                     2
                   </div>
-                  <p className="text-[#C0C0C0]">If shortlisted, you'll receive an email with interview details</p>
+                  <p className="text-[#C0C0C0]">You will receive your employee ID card and access credentials via email</p>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-6 h-6 bg-[#00BCD4] rounded-full flex items-center justify-center text-white text-sm font-bold mt-0.5">
                     3
                   </div>
-                  <p className="text-[#C0C0C0]">Final selection results will be communicated via email and phone</p>
+                  <p className="text-[#C0C0C0]">Your manager will contact you with your first day schedule and orientation details</p>
                 </div>
               </div>
             </motion.div>
@@ -72,7 +71,7 @@ export function SuccessScreen() {
               className="space-y-4"
             >
               <p className="text-[#8a9ba8] text-sm">
-                Application ID: <span className="text-[#00BCD4] font-mono">ABG-{Date.now().toString().slice(-8)}</span>
+                Form ID: <span className="text-[#00BCD4] font-mono">JFF-{Date.now().toString().slice(-8)}</span>
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
