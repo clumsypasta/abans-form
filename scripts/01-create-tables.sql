@@ -12,9 +12,9 @@ CREATE TABLE IF NOT EXISTS internship_forms (
   father_husband_name TEXT,
   department TEXT,
   company_name TEXT DEFAULT 'ABANS Group',
-  date_of_joining TEXT,
+  date_of_joining DATE,
   place_location TEXT,
-  date_of_birth TEXT,
+  date_of_birth DATE,
   present_address TEXT,
   permanent_address TEXT,
   phone_residence TEXT,
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS internship_forms (
 
   -- Nominee Details
   nominee_name TEXT,
-  nominee_dob TEXT,
+  nominee_dob DATE,
   nominee_mobile TEXT,
   nominee_relationship TEXT,
 

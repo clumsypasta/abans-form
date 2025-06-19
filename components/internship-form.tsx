@@ -247,8 +247,22 @@ export default function InternshipForm() {
         }
       }
 
+      // Convert empty date strings to null for proper database handling
+      const processedData = { ...data }
+      
+      // Handle date fields - convert empty strings to null
+      if (!processedData.date_of_joining || processedData.date_of_joining === '') {
+        processedData.date_of_joining = undefined
+      }
+      if (!processedData.date_of_birth || processedData.date_of_birth === '') {
+        processedData.date_of_birth = undefined
+      }
+      if (!processedData.nominee_dob || processedData.nominee_dob === '') {
+        processedData.nominee_dob = undefined
+      }
+
       const formData: Partial<InternshipFormData> = {
-        ...data,
+        ...processedData,
         photo_url: photoUrl,
         sections_completed: Array.from(completedSections).map((i) => sections[i].id),
       }
