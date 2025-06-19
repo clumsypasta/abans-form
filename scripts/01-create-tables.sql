@@ -1,88 +1,76 @@
 -- Create the internship_forms table
 CREATE TABLE IF NOT EXISTS internship_forms (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  id BIGSERIAL PRIMARY KEY,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  
+
   -- Personal Information
   photo_url TEXT,
-  first_name VARCHAR(100) NOT NULL,
-  middle_name VARCHAR(100),
-  last_name VARCHAR(100) NOT NULL,
-  employee_code VARCHAR(50),
-  father_husband_name VARCHAR(200),
-  department VARCHAR(100),
-  company_name VARCHAR(100) DEFAULT 'ABANS Group',
-  date_of_joining DATE,
-  place_location VARCHAR(100),
-  date_of_birth DATE,
+  first_name TEXT,
+  middle_name TEXT,
+  last_name TEXT,
+  employee_code TEXT,
+  father_husband_name TEXT,
+  department TEXT,
+  company_name TEXT DEFAULT 'ABANS Group',
+  date_of_joining TEXT,
+  place_location TEXT,
+  date_of_birth TEXT,
   present_address TEXT,
   permanent_address TEXT,
-  phone_residence VARCHAR(20),
-  phone_mobile VARCHAR(20) NOT NULL,
-  marital_status VARCHAR(20),
-  nationality VARCHAR(50),
-  blood_group VARCHAR(10),
-  personal_email VARCHAR(100) NOT NULL,
-  uan VARCHAR(50),
-  last_pf_no VARCHAR(50),
-  
+  phone_residence TEXT,
+  phone_mobile TEXT,
+  marital_status TEXT,
+  nationality TEXT,
+  blood_group TEXT,
+  personal_email TEXT,
+  uan TEXT,
+  last_pf_no TEXT,
+
   -- Emergency Contact
-  emergency_contact_name VARCHAR(200),
+  emergency_contact_name TEXT,
   emergency_contact_address TEXT,
-  emergency_contact_relationship VARCHAR(50),
-  emergency_contact_phone VARCHAR(20),
-  
+  emergency_contact_relationship TEXT,
+  emergency_contact_phone TEXT,
+
   -- Nominee Details
-  nominee_name VARCHAR(200),
-  nominee_dob DATE,
-  nominee_mobile VARCHAR(20),
-  nominee_relationship VARCHAR(50),
-  
-  -- Languages Known (JSON array)
-  languages_known JSONB DEFAULT '[]',
-  
-  -- Family Background (JSON array)
-  family_dependants JSONB DEFAULT '[]',
-  
-  -- Academic Qualifications (JSON array)
-  academic_qualifications JSONB DEFAULT '[]',
-  
-  -- Professional Qualifications (JSON array)
-  professional_qualifications JSONB DEFAULT '[]',
-  
-  -- Extra Curricular Activities
-  extra_curricular TEXT,
-  
-  -- Reading Habits
-  reading_habits TEXT,
-  
-  -- Work Experience
+  nominee_name TEXT,
+  nominee_dob TEXT,
+  nominee_mobile TEXT,
+  nominee_relationship TEXT,
+
+  -- Complex fields stored as JSONB
+  languages_known JSONB DEFAULT '[]'::jsonb,
+  family_dependants JSONB DEFAULT '[]'::jsonb,
+  academic_qualifications JSONB DEFAULT '[]'::jsonb,
+  professional_qualifications JSONB DEFAULT '[]'::jsonb,
+  work_experience JSONB DEFAULT '[]'::jsonb,
+  references JSONB DEFAULT '[]'::jsonb,
+
+  -- Status fields
   is_fresher BOOLEAN DEFAULT false,
-  work_experience JSONB DEFAULT '[]',
-  
-  -- Reference from Last Job
-  hr_rep_name VARCHAR(200),
-  hr_rep_designation VARCHAR(100),
-  hr_company_address TEXT,
-  hr_contact_no VARCHAR(20),
-  hr_office_email VARCHAR(100),
-  
-  -- Declaration
-  signature_url TEXT,
-  declaration_date DATE DEFAULT CURRENT_DATE,
-  
-  -- Status
-  status VARCHAR(20) DEFAULT 'submitted'
+  agreement_accepted BOOLEAN DEFAULT false,
+  sections_completed JSONB DEFAULT '[]'::jsonb
 );
 
--- Create storage bucket for form uploads
+-- Create storage bucket for file uploads
 INSERT INTO storage.buckets (id, name, public) 
 VALUES ('form-uploads', 'form-uploads', true)
 ON CONFLICT (id) DO NOTHING;
 
--- Create policy for authenticated uploads
-CREATE POLICY "Allow authenticated uploads" ON storage.objects
+-- Set up Row Level Security (RLS)
+ALTER TABLE internship_forms ENABLE ROW LEVEL SECURITY;
+
+-- Allow inserts for authenticated users
+CREATE POLICY "Allow insert for authenticated users" ON internship_forms
+FOR INSERT WITH CHECK (true);
+
+-- Allow select for authenticated users
+CREATE POLICY "Allow select for authenticated users" ON internship_forms
+FOR SELECT USING (true);
+
+-- Set up storage policies
+CREATE POLICY "Allow upload for authenticated users" ON storage.objects
 FOR INSERT WITH CHECK (bucket_id = 'form-uploads');
 
-CREATE POLICY "Allow public access" ON storage.objects
+CREATE POLICY "Allow public access to uploads" ON storage.objects
 FOR SELECT USING (bucket_id = 'form-uploads');

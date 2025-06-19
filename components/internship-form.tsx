@@ -229,15 +229,22 @@ export default function InternshipForm() {
     setIsSubmitting(true)
     try {
       if (!isSupabaseConfigured()) {
-        alert("Form submission is not available in preview mode. Please configure Supabase environment variables.")
+        setSaveMessage("Form submission is not available - Supabase not configured")
+        setTimeout(() => setSaveMessage(""), 3000)
         setIsSubmitting(false)
         return
       }
 
       let photoUrl = ""
       if (photoFile) {
-        const photoPath = `photos/${Date.now()}-${photoFile.name}`
-        photoUrl = await uploadFile(photoFile, photoPath)
+        try {
+          const photoPath = `photos/${Date.now()}-${photoFile.name}`
+          photoUrl = await uploadFile(photoFile, photoPath)
+        } catch (uploadError) {
+          console.error("Error uploading photo:", uploadError)
+          setSaveMessage("Error uploading photo. Submitting without photo.")
+          setTimeout(() => setSaveMessage(""), 3000)
+        }
       }
 
       const formData: Partial<InternshipFormData> = {
@@ -246,14 +253,21 @@ export default function InternshipForm() {
         sections_completed: Array.from(completedSections).map((i) => sections[i].id),
       }
 
-      const { error } = await supabase.from("internship_forms").insert([formData])
-      if (error) throw error
+      const { data: insertedData, error } = await supabase.from("internship_forms").insert([formData])
+      
+      if (error) {
+        console.error("Supabase error:", error)
+        setSaveMessage(`Database error: ${error.message}`)
+        setTimeout(() => setSaveMessage(""), 5000)
+        return
+      }
 
       localStorage.removeItem("internship-form-draft")
       setIsSubmitted(true)
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error submitting form:", error)
-      alert("Error submitting form. Please try again.")
+      setSaveMessage(`Error submitting form: ${error.message || 'Unknown error'}`)
+      setTimeout(() => setSaveMessage(""), 5000)
     } finally {
       setIsSubmitting(false)
     }
