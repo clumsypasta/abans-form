@@ -49,7 +49,10 @@ CREATE TABLE IF NOT EXISTS internship_forms (
   -- Status fields
   is_fresher BOOLEAN DEFAULT false,
   agreement_accepted BOOLEAN DEFAULT false,
-  sections_completed JSONB DEFAULT '[]'::jsonb
+  sections_completed JSONB DEFAULT '[]'::jsonb,
+  
+  -- PDF storage
+  pdf_url TEXT
 );
 
 -- Create storage bucket for file uploads

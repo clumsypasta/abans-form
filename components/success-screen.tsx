@@ -1,11 +1,55 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { CheckCircle, Download, Home } from "lucide-react"
+import { CheckCircle, Download, Home, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { generateFormPDF, uploadPDFToSupabase, type FormDataForPDF } from "@/lib/pdf-generator"
 
-export function SuccessScreen() {
+interface SuccessScreenProps {
+  formData?: FormDataForPDF
+  formId?: string
+}
+
+export function SuccessScreen({ formData, formId }: SuccessScreenProps) {
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
+  const [pdfGenerated, setPdfGenerated] = useState(false)
+
+  const handleDownloadPDF = async () => {
+    if (!formData) {
+      alert('Form data not available for PDF generation')
+      return
+    }
+
+    setIsGeneratingPDF(true)
+    try {
+      const { blob, filename } = await generateFormPDF(formData, formId)
+      
+      // Download the PDF
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+
+      // Upload to Supabase (optional - for backup)
+      const pdfUrl = await uploadPDFToSupabase(blob, filename)
+      if (pdfUrl) {
+        console.log('PDF uploaded to Supabase:', pdfUrl)
+      }
+
+      setPdfGenerated(true)
+    } catch (error) {
+      console.error('Error generating PDF:', error)
+      alert('Error generating PDF. Please try again.')
+    } finally {
+      setIsGeneratingPDF(false)
+    }
+  }
   return (
     <div className="min-h-screen bg-[#0A2A33] flex items-center justify-center py-8 px-4">
       <motion.div
@@ -75,7 +119,24 @@ export function SuccessScreen() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button onClick={() => window.print()} className="bg-[#00BCD4] hover:bg-[#00ACC1] text-white">
+                <Button 
+                  onClick={handleDownloadPDF} 
+                  disabled={isGeneratingPDF}
+                  className="bg-[#00BCD4] hover:bg-[#00ACC1] text-white"
+                >
+                  {isGeneratingPDF ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      Generating PDF...
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="w-4 h-4 mr-2" />
+                      Download Complete Form PDF
+                    </>
+                  )}
+                </Button>
+                <Button onClick={() => window.print()} className="bg-[#4CAF50] hover:bg-[#45a049] text-white">
                   <Download className="w-4 h-4 mr-2" />
                   Download Confirmation
                 </Button>

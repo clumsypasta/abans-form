@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { supabase, type InternshipFormData, isSupabaseConfigured } from "@/lib/supabase"
+import { generateFormPDF, uploadPDFToSupabase } from "@/lib/pdf-generator"
 import { useTheme } from "@/hooks/use-theme"
 import { PersonalInfoSection } from "./sections/personal-info-section"
 import { NomineeSection } from "./sections/nominee-section"
@@ -144,6 +145,8 @@ export default function InternshipForm() {
   const [currentSection, setCurrentSection] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [submittedFormData, setSubmittedFormData] = useState<FormData | null>(null)
+  const [submittedFormId, setSubmittedFormId] = useState<string | null>(null)
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [completedSections, setCompletedSections] = useState<Set<number>>(new Set())
   const [isSaving, setIsSaving] = useState(false)
@@ -267,13 +270,47 @@ export default function InternshipForm() {
         sections_completed: Array.from(completedSections).map((i) => sections[i].id),
       }
 
-      const { data: insertedData, error } = await supabase.from("internship_forms").insert([formData])
+      const { data: insertedData, error } = await supabase.from("internship_forms").insert([formData]).select()
       
       if (error) {
         console.error("Supabase error:", error)
         setSaveMessage(`Database error: ${error.message}`)
         setTimeout(() => setSaveMessage(""), 5000)
         return
+      }
+
+      // Store form data and ID for PDF generation
+      setSubmittedFormData(processedData)
+      let recordId = null
+      if (insertedData && insertedData[0]) {
+        recordId = insertedData[0].id
+        setSubmittedFormId(recordId?.toString())
+      }
+
+      // Generate PDF and store in database (background process)
+      if (recordId) {
+        try {
+          // Small delay to ensure DOM is ready
+          setTimeout(async () => {
+            try {
+              const { blob, filename } = await generateFormPDF(processedData, recordId.toString())
+              const pdfUrl = await uploadPDFToSupabase(blob, filename)
+              
+              if (pdfUrl) {
+                // Update the database record with PDF URL
+                await supabase
+                  .from("internship_forms")
+                  .update({ pdf_url: pdfUrl })
+                  .eq('id', recordId)
+                console.log('PDF generated and stored in database')
+              }
+            } catch (pdfError) {
+              console.error('Error generating PDF for database:', pdfError)
+            }
+          }, 1000)
+        } catch (error) {
+          console.error('Error in PDF generation process:', error)
+        }
       }
 
       localStorage.removeItem("internship-form-draft")
@@ -292,7 +329,7 @@ export default function InternshipForm() {
   }
 
   if (isSubmitted) {
-    return <SuccessScreen />
+    return <SuccessScreen formData={submittedFormData || undefined} formId={submittedFormId || undefined} />
   }
 
   return (
