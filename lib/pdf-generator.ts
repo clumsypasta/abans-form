@@ -1,6 +1,5 @@
 
 import jsPDF from 'jspdf'
-import html2canvas from 'html2canvas'
 import { supabase } from './supabase'
 
 export interface FormDataForPDF {
@@ -85,271 +84,269 @@ export interface FormDataForPDF {
   agreement_accepted?: boolean
 }
 
-const getLogoAsBase64 = async (): Promise<string> => {
+const addLogoToPDF = async (doc: jsPDF, x: number, y: number): Promise<void> => {
   try {
     const response = await fetch('/images/abans-logo.png')
     if (!response.ok) throw new Error('Failed to fetch logo')
     
     const blob = await response.blob()
-    return new Promise((resolve) => {
+    const base64 = await new Promise<string>((resolve) => {
       const reader = new FileReader()
       reader.onload = () => resolve(reader.result as string)
       reader.readAsDataURL(blob)
     })
+    
+    // Add logo to PDF (adjusted size)
+    doc.addImage(base64, 'PNG', x, y, 40, 20)
   } catch (error) {
     console.error('Error loading logo:', error)
-    return ''
   }
 }
 
-export const generateFormPDF = async (formData: FormDataForPDF, formId?: string): Promise<{ blob: Blob; filename: string }> => {
-  // Get logo as base64
-  const logoBase64 = await getLogoAsBase64()
-  
-  // Create a hidden div with the form content
-  const tempDiv = document.createElement('div')
-  tempDiv.style.position = 'absolute'
-  tempDiv.style.left = '-9999px'
-  tempDiv.style.top = '0'
-  tempDiv.style.width = '800px' // Fixed width for consistent rendering
-  tempDiv.style.backgroundColor = 'white'
-  tempDiv.style.padding = '40px'
-  tempDiv.style.fontFamily = 'Arial, sans-serif'
-  tempDiv.style.fontSize = '14px'
-  tempDiv.style.lineHeight = '1.6'
-  tempDiv.style.color = 'black'
-  tempDiv.style.boxSizing = 'border-box'
-
-  // Build the HTML content with page break handling
-  const htmlContent = `
-    <div style="max-width: 100%; margin: 0 auto; page-break-inside: avoid;">
-      <!-- Header -->
-      <div style="position: relative; text-align: center; margin-bottom: 30px; border-bottom: 2px solid #00BCD4; padding-bottom: 20px; page-break-inside: avoid;">
-        ${logoBase64 ? `<div style="position: absolute; top: 0; right: 0; z-index: 10;">
-          <img src="${logoBase64}" alt="ABANS Group" style="height: 80px; width: auto; max-width: 200px; display: block;" />
-        </div>` : ''}
-        <div style="padding-right: 220px;">
-          <h1 style="color: #00BCD4; margin: 0; font-size: 28px; font-weight: bold;">ABANS GROUP</h1>
-          <h2 style="color: #333; margin: 15px 0 0 0; font-size: 20px;">Joining Formality Form</h2>
-          ${formId ? `<p style="margin: 10px 0 0 0; color: #666; font-size: 12px;">Form ID: JFF-${formId}</p>` : ''}
-          <p style="margin: 5px 0 0 0; color: #666; font-size: 12px;">Generated on: ${new Date().toLocaleDateString()}</p>
-        </div>
-      </div>
-
-      <!-- Personal Information -->
-      <div style="margin-bottom: 30px; page-break-inside: avoid;">
-        <h3 style="color: #00BCD4; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-bottom: 20px; font-size: 18px; page-break-after: avoid;">Personal Information</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; page-break-inside: avoid;">
-          <div style="padding: 5px 0;"><strong>First Name:</strong> ${formData.first_name || 'N/A'}</div>
-          <div style="padding: 5px 0;"><strong>Middle Name:</strong> ${formData.middle_name || 'N/A'}</div>
-          <div style="padding: 5px 0;"><strong>Last Name:</strong> ${formData.last_name || 'N/A'}</div>
-          <div style="padding: 5px 0;"><strong>Employee Code:</strong> ${formData.employee_code || 'N/A'}</div>
-          <div style="padding: 5px 0;"><strong>Father/Husband Name:</strong> ${formData.father_husband_name || 'N/A'}</div>
-          <div style="padding: 5px 0;"><strong>Department:</strong> ${formData.department || 'N/A'}</div>
-          <div style="padding: 5px 0;"><strong>Company:</strong> ${formData.company_name || 'ABANS Group'}</div>
-          <div style="padding: 5px 0;"><strong>Date of Joining:</strong> ${formData.date_of_joining || 'N/A'}</div>
-          <div style="padding: 5px 0;"><strong>Place/Location:</strong> ${formData.place_location || 'N/A'}</div>
-          <div style="padding: 5px 0;"><strong>Date of Birth:</strong> ${formData.date_of_birth || 'N/A'}</div>
-          <div style="padding: 5px 0;"><strong>Phone (Residence):</strong> ${formData.phone_residence || 'N/A'}</div>
-          <div style="padding: 5px 0;"><strong>Phone (Mobile):</strong> ${formData.phone_mobile || 'N/A'}</div>
-          <div style="padding: 5px 0;"><strong>Marital Status:</strong> ${formData.marital_status || 'N/A'}</div>
-          <div style="padding: 5px 0;"><strong>Nationality:</strong> ${formData.nationality || 'N/A'}</div>
-          <div style="padding: 5px 0;"><strong>Blood Group:</strong> ${formData.blood_group || 'N/A'}</div>
-          <div style="padding: 5px 0;"><strong>Personal Email:</strong> ${formData.personal_email || 'N/A'}</div>
-          <div style="padding: 5px 0;"><strong>UAN:</strong> ${formData.uan || 'N/A'}</div>
-          <div style="padding: 5px 0;"><strong>Last PF No:</strong> ${formData.last_pf_no || 'N/A'}</div>
-        </div>
-        <div style="margin-bottom: 15px; page-break-inside: avoid;">
-          <div style="margin-bottom: 8px; font-weight: bold;">Present Address:</div>
-          <div style="padding: 10px; border: 1px solid #ddd; background: #f9f9f9; word-wrap: break-word;">${formData.present_address || 'N/A'}</div>
-        </div>
-        <div style="page-break-inside: avoid;">
-          <div style="margin-bottom: 8px; font-weight: bold;">Permanent Address:</div>
-          <div style="padding: 10px; border: 1px solid #ddd; background: #f9f9f9; word-wrap: break-word;">${formData.permanent_address || 'N/A'}</div>
-        </div>
-      </div>
-
-      <!-- Emergency Contact -->
-      <div style="margin-bottom: 30px; page-break-inside: avoid;">
-        <h3 style="color: #00BCD4; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-bottom: 20px; font-size: 18px; page-break-after: avoid;">Emergency Contact</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-          <div style="padding: 5px 0;"><strong>Name:</strong> ${formData.emergency_contact_name || 'N/A'}</div>
-          <div style="padding: 5px 0;"><strong>Phone:</strong> ${formData.emergency_contact_phone || 'N/A'}</div>
-          <div style="padding: 5px 0;"><strong>Relationship:</strong> ${formData.emergency_contact_relationship || 'N/A'}</div>
-        </div>
-        <div style="page-break-inside: avoid;">
-          <div style="margin-bottom: 8px; font-weight: bold;">Address:</div>
-          <div style="padding: 10px; border: 1px solid #ddd; background: #f9f9f9; word-wrap: break-word;">${formData.emergency_contact_address || 'N/A'}</div>
-        </div>
-      </div>
-
-      <!-- Nominee Details -->
-      <div style="margin-bottom: 30px; page-break-inside: avoid;">
-        <h3 style="color: #00BCD4; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-bottom: 20px; font-size: 18px; page-break-after: avoid;">Nominee Details</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-          <div style="padding: 5px 0;"><strong>Name:</strong> ${formData.nominee_name || 'N/A'}</div>
-          <div style="padding: 5px 0;"><strong>Date of Birth:</strong> ${formData.nominee_dob || 'N/A'}</div>
-          <div style="padding: 5px 0;"><strong>Mobile:</strong> ${formData.nominee_mobile || 'N/A'}</div>
-          <div style="padding: 5px 0;"><strong>Relationship:</strong> ${formData.nominee_relationship || 'N/A'}</div>
-        </div>
-      </div>
-
-      <!-- Languages Known -->
-      <div style="margin-bottom: 30px; page-break-inside: avoid;">
-        <h3 style="color: #00BCD4; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-bottom: 20px; font-size: 18px; page-break-after: avoid;">Languages Known</h3>
-        ${formData.languages_known && formData.languages_known.length > 0 ? 
-          formData.languages_known.map((lang, index) => `
-            <div style="margin-bottom: 12px; padding: 12px; border: 1px solid #ddd; background: #f9f9f9; page-break-inside: avoid;">
-              <strong>${lang.language || 'N/A'}</strong> - 
-              Read: ${lang.read ? 'Yes' : 'No'}, 
-              Write: ${lang.write ? 'Yes' : 'No'}, 
-              Speak: ${lang.speak ? 'Yes' : 'No'}
-            </div>
-          `).join('') 
-          : '<div style="padding: 10px;">No languages specified</div>'
-        }
-      </div>
-
-      <!-- Family Dependants -->
-      <div style="margin-bottom: 30px; page-break-inside: avoid;">
-        <h3 style="color: #00BCD4; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-bottom: 20px; font-size: 18px; page-break-after: avoid;">Family Dependants</h3>
-        ${formData.family_dependants && formData.family_dependants.length > 0 ? 
-          formData.family_dependants.map((dep, index) => `
-            <div style="margin-bottom: 12px; padding: 12px; border: 1px solid #ddd; background: #f9f9f9; page-break-inside: avoid;">
-              <strong>${dep.name || 'N/A'}</strong> - ${dep.relationship || 'N/A'}<br>
-              Mobile: ${dep.mobile || 'N/A'}, Occupation: ${dep.occupation || 'N/A'}
-            </div>
-          `).join('') 
-          : '<div style="padding: 10px;">No dependants specified</div>'
-        }
-      </div>
-
-      <!-- Academic Qualifications -->
-      <div style="margin-bottom: 30px; page-break-inside: avoid;">
-        <h3 style="color: #00BCD4; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-bottom: 20px; font-size: 18px; page-break-after: avoid;">Academic Qualifications</h3>
-        ${formData.academic_qualifications && formData.academic_qualifications.length > 0 ? 
-          formData.academic_qualifications.map((qual, index) => `
-            <div style="margin-bottom: 12px; padding: 12px; border: 1px solid #ddd; background: #f9f9f9; page-break-inside: avoid;">
-              <strong>${qual.degree || 'N/A'}</strong> - ${qual.university || 'N/A'}<br>
-              Year: ${qual.passing_year || 'N/A'}, Percentage: ${qual.percentage || 'N/A'}%
-            </div>
-          `).join('') 
-          : '<div style="padding: 10px;">No academic qualifications specified</div>'
-        }
-      </div>
-
-      <!-- Professional Qualifications -->
-      <div style="margin-bottom: 30px; page-break-inside: avoid;">
-        <h3 style="color: #00BCD4; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-bottom: 20px; font-size: 18px; page-break-after: avoid;">Professional Qualifications</h3>
-        ${formData.professional_qualifications && formData.professional_qualifications.length > 0 ? 
-          formData.professional_qualifications.map((qual, index) => `
-            <div style="margin-bottom: 12px; padding: 12px; border: 1px solid #ddd; background: #f9f9f9; page-break-inside: avoid;">
-              <strong>${qual.certification || 'N/A'}</strong> - ${qual.institute || 'N/A'}<br>
-              Year: ${qual.year || 'N/A'}, Percentage: ${qual.percentage || 'N/A'}%
-            </div>
-          `).join('') 
-          : '<div style="padding: 10px;">No professional qualifications specified</div>'
-        }
-      </div>
-
-      <!-- Work Experience -->
-      <div style="margin-bottom: 30px; page-break-inside: avoid;">
-        <h3 style="color: #00BCD4; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-bottom: 20px; font-size: 18px; page-break-after: avoid;">Work Experience</h3>
-        <div style="margin-bottom: 15px; padding: 5px 0; font-weight: bold;">Is Fresher: ${formData.is_fresher ? 'Yes' : 'No'}</div>
-        ${formData.work_experience && formData.work_experience.length > 0 ? 
-          formData.work_experience.map((exp, index) => `
-            <div style="margin-bottom: 12px; padding: 12px; border: 1px solid #ddd; background: #f9f9f9; page-break-inside: avoid;">
-              <strong>${exp.organization || 'N/A'}</strong> - ${exp.designation || 'N/A'}<br>
-              Type: ${exp.type || 'N/A'}, Duration: ${exp.duration || 'N/A'}<br>
-              Job Profile: ${exp.job_profile || 'N/A'}
-            </div>
-          `).join('') 
-          : '<div style="padding: 10px;">No work experience specified</div>'
-        }
-      </div>
-
-      <!-- References -->
-      <div style="margin-bottom: 30px; page-break-inside: avoid;">
-        <h3 style="color: #00BCD4; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-bottom: 20px; font-size: 18px; page-break-after: avoid;">References</h3>
-        ${formData.references && formData.references.length > 0 ? 
-          formData.references.map((ref, index) => `
-            <div style="margin-bottom: 12px; padding: 12px; border: 1px solid #ddd; background: #f9f9f9; page-break-inside: avoid;">
-              <strong>${ref.name || 'N/A'}</strong> - ${ref.designation || 'N/A'}<br>
-              Company: ${ref.company || 'N/A'}<br>
-              Contact: ${ref.contact_no || 'N/A'}, Email: ${ref.email || 'N/A'}<br>
-              Address: ${ref.address || 'N/A'}
-            </div>
-          `).join('') 
-          : '<div style="padding: 10px;">No references specified</div>'
-        }
-      </div>
-
-      <!-- Agreement -->
-      <div style="margin-bottom: 30px; page-break-inside: avoid;">
-        <h3 style="color: #00BCD4; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-bottom: 20px; font-size: 18px; page-break-after: avoid;">Agreement</h3>
-        <div style="margin-bottom: 15px; padding: 5px 0; font-weight: bold;">Terms and Conditions Accepted: ${formData.agreement_accepted ? 'Yes' : 'No'}</div>
-        <div style="margin-top: 15px; padding: 15px; border: 1px solid #ddd; background: #f9f9f9; font-size: 12px; line-height: 1.6; page-break-inside: avoid;">
-          I hereby declare that the information furnished above is true to the best of my knowledge and belief. 
-          I understand that any false information may lead to the termination of the employment.
-        </div>
-      </div>
-
-      <!-- Footer -->
-      <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666; page-break-inside: avoid;">
-        <p style="margin: 10px 0;">This document was generated automatically by ABANS Group E-Joining Formalities System</p>
-        <p style="margin: 10px 0;">For any queries, contact: hr@abans.lk | +94 11 234 5678</p>
-      </div>
-    </div>
-  `
-
-  tempDiv.innerHTML = htmlContent
-  document.body.appendChild(tempDiv)
-
-  try {
-    // Generate canvas from HTML
-    const canvas = await html2canvas(tempDiv, {
-      scale: 3,
-      useCORS: true,
-      allowTaint: false,
-      backgroundColor: '#ffffff',
-      width: tempDiv.scrollWidth,
-      height: tempDiv.scrollHeight,
-      logging: false,
-      foreignObjectRendering: true
-    })
-
-    // Create PDF
-    const pdf = new jsPDF('p', 'mm', 'a4')
-    const imgData = canvas.toDataURL('image/png')
-    
-    const imgWidth = 210 // A4 width in mm
-    const pageHeight = 295 // A4 height in mm
-    const imgHeight = (canvas.height * imgWidth) / canvas.width
-    let heightLeft = imgHeight
-
-    let position = 0
-
-    // Add first page
-    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
-    heightLeft -= pageHeight
-
-    // Add additional pages if needed
-    while (heightLeft >= 0) {
-      position = heightLeft - imgHeight
-      pdf.addPage()
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
-      heightLeft -= pageHeight
-    }
-
-    // Generate blob
-    const blob = pdf.output('blob')
-    const filename = `ABANS_Joining_Form_${formData.first_name || 'Unknown'}_${formData.last_name || 'User'}_${Date.now()}.pdf`
-
-    return { blob, filename }
-  } finally {
-    // Clean up
-    document.body.removeChild(tempDiv)
+const addText = (doc: jsPDF, text: string, x: number, y: number, maxWidth?: number): number => {
+  if (maxWidth) {
+    const lines = doc.splitTextToSize(text, maxWidth)
+    doc.text(lines, x, y)
+    return y + (lines.length * 6) // 6mm line height
+  } else {
+    doc.text(text, x, y)
+    return y + 6
   }
+}
+
+const addSection = (doc: jsPDF, title: string, x: number, y: number): number => {
+  doc.setFontSize(14)
+  doc.setFont('helvetica', 'bold')
+  doc.setTextColor(0, 188, 212) // #00BCD4
+  const newY = addText(doc, title, x, y)
+  doc.setDrawColor(0, 188, 212)
+  doc.line(x, newY, 200, newY)
+  doc.setTextColor(0, 0, 0)
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(10)
+  return newY + 8
+}
+
+const addKeyValue = (doc: jsPDF, key: string, value: string, x: number, y: number, maxWidth: number = 80): number => {
+  doc.setFont('helvetica', 'bold')
+  doc.text(`${key}:`, x, y)
+  doc.setFont('helvetica', 'normal')
+  return addText(doc, value || 'N/A', x + 35, y, maxWidth)
+}
+
+const checkPageBreak = (doc: jsPDF, currentY: number, neededSpace: number = 20): number => {
+  if (currentY + neededSpace > 280) { // 280mm is near bottom of A4
+    doc.addPage()
+    return 20 // Reset to top margin
+  }
+  return currentY
+}
+
+export const generateFormPDF = async (formData: FormDataForPDF, formId?: string): Promise<{ blob: Blob; filename: string }> => {
+  const doc = new jsPDF('p', 'mm', 'a4')
+  let currentY = 20
+
+  // Header
+  doc.setFontSize(20)
+  doc.setFont('helvetica', 'bold')
+  doc.setTextColor(0, 188, 212)
+  doc.text('ABANS GROUP', 20, currentY)
+  
+  // Add logo to the right
+  await addLogoToPDF(doc, 160, 10)
+  
+  currentY += 8
+  doc.setFontSize(16)
+  doc.text('Joining Formality Form', 20, currentY)
+  
+  currentY += 6
+  doc.setFontSize(10)
+  doc.setTextColor(100, 100, 100)
+  if (formId) {
+    doc.text(`Form ID: JFF-${formId}`, 20, currentY)
+    currentY += 5
+  }
+  doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, currentY)
+  currentY += 15
+
+  // Personal Information
+  currentY = checkPageBreak(doc, currentY, 80)
+  currentY = addSection(doc, 'Personal Information', 20, currentY)
+  
+  currentY = addKeyValue(doc, 'First Name', formData.first_name || '', 20, currentY)
+  currentY = addKeyValue(doc, 'Middle Name', formData.middle_name || '', 20, currentY)
+  currentY = addKeyValue(doc, 'Last Name', formData.last_name || '', 20, currentY)
+  currentY = addKeyValue(doc, 'Employee Code', formData.employee_code || '', 20, currentY)
+  currentY = addKeyValue(doc, 'Father/Husband Name', formData.father_husband_name || '', 20, currentY)
+  currentY = addKeyValue(doc, 'Department', formData.department || '', 20, currentY)
+  currentY = addKeyValue(doc, 'Company', formData.company_name || 'ABANS Group', 20, currentY)
+  currentY = addKeyValue(doc, 'Date of Joining', formData.date_of_joining || '', 20, currentY)
+  currentY = addKeyValue(doc, 'Place/Location', formData.place_location || '', 20, currentY)
+  currentY = addKeyValue(doc, 'Date of Birth', formData.date_of_birth || '', 20, currentY)
+  currentY = addKeyValue(doc, 'Phone (Residence)', formData.phone_residence || '', 20, currentY)
+  currentY = addKeyValue(doc, 'Phone (Mobile)', formData.phone_mobile || '', 20, currentY)
+  currentY = addKeyValue(doc, 'Marital Status', formData.marital_status || '', 20, currentY)
+  currentY = addKeyValue(doc, 'Nationality', formData.nationality || '', 20, currentY)
+  currentY = addKeyValue(doc, 'Blood Group', formData.blood_group || '', 20, currentY)
+  currentY = addKeyValue(doc, 'Personal Email', formData.personal_email || '', 20, currentY)
+  currentY = addKeyValue(doc, 'UAN', formData.uan || '', 20, currentY)
+  currentY = addKeyValue(doc, 'Last PF No', formData.last_pf_no || '', 20, currentY)
+  
+  currentY += 5
+  currentY = addKeyValue(doc, 'Present Address', formData.present_address || '', 20, currentY, 150)
+  currentY += 5
+  currentY = addKeyValue(doc, 'Permanent Address', formData.permanent_address || '', 20, currentY, 150)
+  currentY += 10
+
+  // Emergency Contact
+  currentY = checkPageBreak(doc, currentY, 40)
+  currentY = addSection(doc, 'Emergency Contact', 20, currentY)
+  currentY = addKeyValue(doc, 'Name', formData.emergency_contact_name || '', 20, currentY)
+  currentY = addKeyValue(doc, 'Phone', formData.emergency_contact_phone || '', 20, currentY)
+  currentY = addKeyValue(doc, 'Relationship', formData.emergency_contact_relationship || '', 20, currentY)
+  currentY += 5
+  currentY = addKeyValue(doc, 'Address', formData.emergency_contact_address || '', 20, currentY, 150)
+  currentY += 10
+
+  // Nominee Details
+  currentY = checkPageBreak(doc, currentY, 30)
+  currentY = addSection(doc, 'Nominee Details', 20, currentY)
+  currentY = addKeyValue(doc, 'Name', formData.nominee_name || '', 20, currentY)
+  currentY = addKeyValue(doc, 'Date of Birth', formData.nominee_dob || '', 20, currentY)
+  currentY = addKeyValue(doc, 'Mobile', formData.nominee_mobile || '', 20, currentY)
+  currentY = addKeyValue(doc, 'Relationship', formData.nominee_relationship || '', 20, currentY)
+  currentY += 10
+
+  // Languages Known
+  currentY = checkPageBreak(doc, currentY, 30)
+  currentY = addSection(doc, 'Languages Known', 20, currentY)
+  if (formData.languages_known && formData.languages_known.length > 0) {
+    formData.languages_known.forEach((lang) => {
+      currentY = checkPageBreak(doc, currentY, 10)
+      const langText = `${lang.language || 'N/A'} - Read: ${lang.read ? 'Yes' : 'No'}, Write: ${lang.write ? 'Yes' : 'No'}, Speak: ${lang.speak ? 'Yes' : 'No'}`
+      currentY = addText(doc, langText, 20, currentY, 170)
+      currentY += 2
+    })
+  } else {
+    currentY = addText(doc, 'No languages specified', 20, currentY)
+  }
+  currentY += 10
+
+  // Family Dependants
+  currentY = checkPageBreak(doc, currentY, 30)
+  currentY = addSection(doc, 'Family Dependants', 20, currentY)
+  if (formData.family_dependants && formData.family_dependants.length > 0) {
+    formData.family_dependants.forEach((dep) => {
+      currentY = checkPageBreak(doc, currentY, 15)
+      currentY = addKeyValue(doc, 'Name', dep.name || '', 20, currentY)
+      currentY = addKeyValue(doc, 'Relationship', dep.relationship || '', 20, currentY)
+      currentY = addKeyValue(doc, 'Mobile', dep.mobile || '', 20, currentY)
+      currentY = addKeyValue(doc, 'Occupation', dep.occupation || '', 20, currentY)
+      currentY += 5
+    })
+  } else {
+    currentY = addText(doc, 'No dependants specified', 20, currentY)
+  }
+  currentY += 10
+
+  // Academic Qualifications
+  currentY = checkPageBreak(doc, currentY, 30)
+  currentY = addSection(doc, 'Academic Qualifications', 20, currentY)
+  if (formData.academic_qualifications && formData.academic_qualifications.length > 0) {
+    formData.academic_qualifications.forEach((qual) => {
+      currentY = checkPageBreak(doc, currentY, 20)
+      currentY = addKeyValue(doc, 'Degree', qual.degree || '', 20, currentY)
+      currentY = addKeyValue(doc, 'University', qual.university || '', 20, currentY)
+      currentY = addKeyValue(doc, 'Passing Year', qual.passing_year || '', 20, currentY)
+      currentY = addKeyValue(doc, 'Percentage', `${qual.percentage || ''}%`, 20, currentY)
+      currentY += 5
+    })
+  } else {
+    currentY = addText(doc, 'No academic qualifications specified', 20, currentY)
+  }
+  currentY += 10
+
+  // Professional Qualifications
+  currentY = checkPageBreak(doc, currentY, 30)
+  currentY = addSection(doc, 'Professional Qualifications', 20, currentY)
+  if (formData.professional_qualifications && formData.professional_qualifications.length > 0) {
+    formData.professional_qualifications.forEach((qual) => {
+      currentY = checkPageBreak(doc, currentY, 20)
+      currentY = addKeyValue(doc, 'Certification', qual.certification || '', 20, currentY)
+      currentY = addKeyValue(doc, 'Institute', qual.institute || '', 20, currentY)
+      currentY = addKeyValue(doc, 'Year', qual.year || '', 20, currentY)
+      currentY = addKeyValue(doc, 'Percentage', `${qual.percentage || ''}%`, 20, currentY)
+      currentY += 5
+    })
+  } else {
+    currentY = addText(doc, 'No professional qualifications specified', 20, currentY)
+  }
+  currentY += 10
+
+  // Work Experience
+  currentY = checkPageBreak(doc, currentY, 30)
+  currentY = addSection(doc, 'Work Experience', 20, currentY)
+  currentY = addKeyValue(doc, 'Is Fresher', formData.is_fresher ? 'Yes' : 'No', 20, currentY)
+  currentY += 5
+  
+  if (formData.work_experience && formData.work_experience.length > 0) {
+    formData.work_experience.forEach((exp) => {
+      currentY = checkPageBreak(doc, currentY, 25)
+      currentY = addKeyValue(doc, 'Organization', exp.organization || '', 20, currentY)
+      currentY = addKeyValue(doc, 'Designation', exp.designation || '', 20, currentY)
+      currentY = addKeyValue(doc, 'Type', exp.type || '', 20, currentY)
+      currentY = addKeyValue(doc, 'Duration', exp.duration || '', 20, currentY)
+      currentY = addKeyValue(doc, 'Job Profile', exp.job_profile || '', 20, currentY, 140)
+      currentY += 5
+    })
+  } else {
+    currentY = addText(doc, 'No work experience specified', 20, currentY)
+  }
+  currentY += 10
+
+  // References
+  currentY = checkPageBreak(doc, currentY, 30)
+  currentY = addSection(doc, 'References', 20, currentY)
+  if (formData.references && formData.references.length > 0) {
+    formData.references.forEach((ref) => {
+      currentY = checkPageBreak(doc, currentY, 30)
+      currentY = addKeyValue(doc, 'Name', ref.name || '', 20, currentY)
+      currentY = addKeyValue(doc, 'Designation', ref.designation || '', 20, currentY)
+      currentY = addKeyValue(doc, 'Company', ref.company || '', 20, currentY)
+      currentY = addKeyValue(doc, 'Contact', ref.contact_no || '', 20, currentY)
+      currentY = addKeyValue(doc, 'Email', ref.email || '', 20, currentY)
+      currentY = addKeyValue(doc, 'Address', ref.address || '', 20, currentY, 140)
+      currentY += 5
+    })
+  } else {
+    currentY = addText(doc, 'No references specified', 20, currentY)
+  }
+  currentY += 10
+
+  // Agreement
+  currentY = checkPageBreak(doc, currentY, 40)
+  currentY = addSection(doc, 'Declaration & Agreement', 20, currentY)
+  currentY = addKeyValue(doc, 'Terms Accepted', formData.agreement_accepted ? 'Yes' : 'No', 20, currentY)
+  currentY += 10
+  
+  doc.setFontSize(9)
+  const declarationText = 'I hereby declare that the information furnished above is true to the best of my knowledge and belief. I understand that any false information may lead to the termination of the employment.'
+  currentY = addText(doc, declarationText, 20, currentY, 170)
+  currentY += 15
+
+  // Footer
+  currentY = checkPageBreak(doc, currentY, 20)
+  doc.setFontSize(8)
+  doc.setTextColor(100, 100, 100)
+  doc.text('This document was generated automatically by ABANS Group E-Joining Formalities System', 20, currentY)
+  currentY += 4
+  doc.text('For any queries, contact: hr@abans.lk | +94 11 234 5678', 20, currentY)
+
+  // Generate blob and filename
+  const blob = doc.output('blob')
+  const filename = `ABANS_Joining_Form_${formData.first_name || 'Unknown'}_${formData.last_name || 'User'}_${Date.now()}.pdf`
+
+  return { blob, filename }
 }
 
 export const uploadPDFToSupabase = async (blob: Blob, filename: string): Promise<string | null> => {
