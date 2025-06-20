@@ -85,7 +85,27 @@ export interface FormDataForPDF {
   agreement_accepted?: boolean
 }
 
+const getLogoAsBase64 = async (): Promise<string> => {
+  try {
+    const response = await fetch('/images/abans-logo.png')
+    if (!response.ok) throw new Error('Failed to fetch logo')
+    
+    const blob = await response.blob()
+    return new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as string)
+      reader.readAsDataURL(blob)
+    })
+  } catch (error) {
+    console.error('Error loading logo:', error)
+    return ''
+  }
+}
+
 export const generateFormPDF = async (formData: FormDataForPDF, formId?: string): Promise<{ blob: Blob; filename: string }> => {
+  // Get logo as base64
+  const logoBase64 = await getLogoAsBase64()
+  
   // Create a hidden div with the form content
   const tempDiv = document.createElement('div')
   tempDiv.style.position = 'absolute'
@@ -103,7 +123,10 @@ export const generateFormPDF = async (formData: FormDataForPDF, formId?: string)
   const htmlContent = `
     <div style="max-width: 100%; margin: 0 auto;">
       <!-- Header -->
-      <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #00BCD4; padding-bottom: 20px;">
+      <div style="position: relative; text-align: center; margin-bottom: 30px; border-bottom: 2px solid #00BCD4; padding-bottom: 20px;">
+        ${logoBase64 ? `<div style="position: absolute; top: 0; right: 0;">
+          <img src="${logoBase64}" alt="ABANS Group" style="height: 60px; width: auto;" />
+        </div>` : ''}
         <h1 style="color: #00BCD4; margin: 0; font-size: 24px; font-weight: bold;">ABANS GROUP</h1>
         <h2 style="color: #333; margin: 10px 0 0 0; font-size: 18px;">Joining Formality Form</h2>
         ${formId ? `<p style="margin: 10px 0 0 0; color: #666; font-size: 10px;">Form ID: JFF-${formId}</p>` : ''}
@@ -326,6 +349,8 @@ export const generateFormPDF = async (formData: FormDataForPDF, formId?: string)
 
 export const uploadPDFToSupabase = async (blob: Blob, filename: string): Promise<string | null> => {
   try {
+    console.log('Attempting to upload PDF:', filename, 'Size:', blob.size)
+    
     const { data, error } = await supabase.storage
       .from('form-uploads')
       .upload(`pdfs/${filename}`, blob, {
@@ -335,13 +360,17 @@ export const uploadPDFToSupabase = async (blob: Blob, filename: string): Promise
 
     if (error) {
       console.error('Error uploading PDF:', error)
+      console.error('Error details:', JSON.stringify(error, null, 2))
       return null
     }
+
+    console.log('PDF uploaded successfully:', data)
 
     const { data: urlData } = supabase.storage
       .from('form-uploads')
       .getPublicUrl(`pdfs/${filename}`)
 
+    console.log('Public URL generated:', urlData.publicUrl)
     return urlData.publicUrl
   } catch (error) {
     console.error('Error uploading PDF to Supabase:', error)
