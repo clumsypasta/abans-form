@@ -70,14 +70,19 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
       {/* Name Fields */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <FloatingInput
-          label="First Name *"
+          label="First Name"
           placeholder="Enter your first name"
           {...form.register("first_name")}
           error={form.formState.errors.first_name?.message}
         />
-        <FloatingInput label="Middle Name" placeholder="Enter your middle name" {...form.register("middle_name")} />
+        <FloatingInput 
+          label="Middle Name" 
+          placeholder="Enter your middle name" 
+          {...form.register("middle_name")}
+          error={form.formState.errors.middle_name?.message}
+        />
         <FloatingInput
-          label="Last Name *"
+          label="Last Name"
           placeholder="Enter your last name"
           {...form.register("last_name")}
           error={form.formState.errors.last_name?.message}
@@ -86,25 +91,40 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
 
       {/* Employee Details */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FloatingInput label="Employee Code" placeholder="Enter employee code" {...form.register("employee_code")} />
         <FloatingInput
           label="Father/Husband's Name"
           placeholder="Enter father/husband's name"
           {...form.register("father_husband_name")}
+          error={form.formState.errors.father_husband_name?.message}
         />
-      </div>
-
-      {/* Department and Company */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FloatingInput label="Department" placeholder="Enter department" {...form.register("department")} />
-        <FloatingInput label="Company Name" {...form.register("company_name")} readOnly />
+        <FloatingInput 
+          label="Department" 
+          placeholder="Enter department" 
+          {...form.register("department")}
+          error={form.formState.errors.department?.message}
+        />
       </div>
 
       {/* Dates and Location */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <FloatingInput label="Date of Joining" type="date" {...form.register("date_of_joining")} />
-        <FloatingInput label="Place/Location" placeholder="Enter location" {...form.register("place_location")} />
-        <FloatingInput label="Date of Birth" type="date" {...form.register("date_of_birth")} />
+        <FloatingInput 
+          label="Date of Joining" 
+          type="date" 
+          {...form.register("date_of_joining")}
+          error={form.formState.errors.date_of_joining?.message}
+        />
+        <FloatingInput 
+          label="Place/Location" 
+          placeholder="Enter location" 
+          {...form.register("place_location")}
+          error={form.formState.errors.place_location?.message}
+        />
+        <FloatingInput 
+          label="Date of Birth" 
+          type="date" 
+          {...form.register("date_of_birth")}
+          error={form.formState.errors.date_of_birth?.message}
+        />
       </div>
 
       {/* Addresses */}
@@ -113,12 +133,14 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
           label="Present Address"
           placeholder="Enter your current address"
           {...form.register("present_address")}
+          error={form.formState.errors.present_address?.message}
           rows={3}
         />
         <FloatingTextarea
           label="Permanent Address"
           placeholder="Enter your permanent address"
           {...form.register("permanent_address")}
+          error={form.formState.errors.permanent_address?.message}
           rows={3}
         />
       </div>
@@ -129,10 +151,11 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
           label="Phone (Residence)"
           placeholder="Enter residence phone number"
           {...form.register("phone_residence")}
+          error={form.formState.errors.phone_residence?.message}
         />
         <FloatingInput
-          label="Mobile Number *"
-          placeholder="Enter mobile number"
+          label="Mobile Number"
+          placeholder="Enter 10-digit mobile number"
           {...form.register("phone_mobile")}
           error={form.formState.errors.phone_mobile?.message}
         />
@@ -157,7 +180,12 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
             </div>
           </RadioGroup>
         </div>
-        <FloatingInput label="Nationality" placeholder="Enter nationality" {...form.register("nationality")} />
+        <FloatingInput 
+          label="Nationality" 
+          placeholder="Enter nationality" 
+          {...form.register("nationality")}
+          error={form.formState.errors.nationality?.message}
+        />
         <div className="space-y-3">
           <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Blood Group</Label>
           <Select value={form.watch("blood_group")} onValueChange={(value) => form.setValue("blood_group", value)}>
@@ -172,20 +200,35 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
               ))}
             </SelectContent>
           </Select>
+          {form.formState.errors.blood_group && (
+            <p className="text-red-600 dark:text-red-400 text-sm mt-1">
+              {form.formState.errors.blood_group.message}
+            </p>
+          )}
         </div>
       </div>
 
       {/* Email and PF Details */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <FloatingInput
-          label="Personal Email *"
+          label="Personal Email"
           type="email"
-          placeholder="Enter email address"
+          placeholder="Enter complete email address"
           {...form.register("personal_email")}
           error={form.formState.errors.personal_email?.message}
         />
-        <FloatingInput label="UAN" placeholder="Enter UAN number" {...form.register("uan")} />
-        <FloatingInput label="Last PF No." placeholder="Enter last PF number" {...form.register("last_pf_no")} />
+        <FloatingInput 
+          label="UAN" 
+          placeholder="Enter UAN number" 
+          {...form.register("uan")}
+          error={form.formState.errors.uan?.message}
+        />
+        <FloatingInput 
+          label="Last PF No." 
+          placeholder="Enter last PF number" 
+          {...form.register("last_pf_no")}
+          error={form.formState.errors.last_pf_no?.message}
+        />
       </div>
 
       {/* Emergency Contact */}
@@ -196,17 +239,25 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
             label="Name"
             placeholder="Enter emergency contact name"
             {...form.register("emergency_contact_name")}
+            error={form.formState.errors.emergency_contact_name?.message}
           />
-          <FloatingInput label="Phone" placeholder="Enter phone number" {...form.register("emergency_contact_phone")} />
+          <FloatingInput 
+            label="Phone" 
+            placeholder="Enter 10-digit phone number" 
+            {...form.register("emergency_contact_phone")}
+            error={form.formState.errors.emergency_contact_phone?.message}
+          />
           <FloatingInput
             label="Relationship"
             placeholder="Enter relationship"
             {...form.register("emergency_contact_relationship")}
+            error={form.formState.errors.emergency_contact_relationship?.message}
           />
           <FloatingTextarea
             label="Address"
             placeholder="Enter emergency contact address"
             {...form.register("emergency_contact_address")}
+            error={form.formState.errors.emergency_contact_address?.message}
             rows={2}
           />
         </div>

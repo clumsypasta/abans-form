@@ -24,106 +24,125 @@ import { SuccessScreen } from "./success-screen"
 
 const formSchema = z.object({
   // Personal Information
-  first_name: z.string().optional(),
-  middle_name: z.string().optional(),
-  last_name: z.string().optional(),
-  employee_code: z.string().optional(),
-  father_husband_name: z.string().optional(),
-  department: z.string().optional(),
-  company_name: z.string().default("ABANS Group"),
-  date_of_joining: z.string().optional(),
-  place_location: z.string().optional(),
-  date_of_birth: z.string().optional(),
-  present_address: z.string().optional(),
-  permanent_address: z.string().optional(),
-  phone_residence: z.string().optional(),
-  phone_mobile: z.string().optional(),
-  marital_status: z.string().optional(),
-  nationality: z.string().optional(),
-  blood_group: z.string().optional(),
-  personal_email: z.string().optional(),
-  uan: z.string().optional(),
-  last_pf_no: z.string().optional(),
+  first_name: z.string().min(1, "First name is required"),
+  middle_name: z.string().min(1, "Middle name is required"),
+  last_name: z.string().min(1, "Last name is required"),
+  father_husband_name: z.string().min(1, "Father/Husband name is required"),
+  department: z.string().min(1, "Department is required"),
+  date_of_joining: z.string().min(1, "Date of joining is required"),
+  place_location: z.string().min(1, "Place/Location is required"),
+  date_of_birth: z.string().min(1, "Date of birth is required"),
+  present_address: z.string().min(1, "Present address is required"),
+  permanent_address: z.string().min(1, "Permanent address is required"),
+  phone_residence: z.string().min(1, "Residence phone is required"),
+  phone_mobile: z.string()
+    .min(10, "Mobile number must be exactly 10 digits")
+    .max(10, "Mobile number must be exactly 10 digits")
+    .regex(/^\d{10}$/, "Mobile number must contain only digits"),
+  marital_status: z.string().min(1, "Marital status is required"),
+  nationality: z.string().min(1, "Nationality is required"),
+  blood_group: z.string().min(1, "Blood group is required"),
+  personal_email: z.string()
+    .min(1, "Email is required")
+    .email("Please enter a valid email address"),
+  uan: z.string().min(1, "UAN is required"),
+  last_pf_no: z.string().min(1, "Last PF number is required"),
 
   // Emergency Contact
-  emergency_contact_name: z.string().optional(),
-  emergency_contact_address: z.string().optional(),
-  emergency_contact_relationship: z.string().optional(),
-  emergency_contact_phone: z.string().optional(),
+  emergency_contact_name: z.string().min(1, "Emergency contact name is required"),
+  emergency_contact_address: z.string().min(1, "Emergency contact address is required"),
+  emergency_contact_relationship: z.string().min(1, "Emergency contact relationship is required"),
+  emergency_contact_phone: z.string()
+    .min(10, "Phone number must be exactly 10 digits")
+    .max(10, "Phone number must be exactly 10 digits")
+    .regex(/^\d{10}$/, "Phone number must contain only digits"),
 
   // Nominee
-  nominee_name: z.string().optional(),
-  nominee_dob: z.string().optional(),
-  nominee_mobile: z.string().optional(),
-  nominee_relationship: z.string().optional(),
+  nominee_name: z.string().min(1, "Nominee name is required"),
+  nominee_dob: z.string().min(1, "Nominee date of birth is required"),
+  nominee_mobile: z.string()
+    .min(10, "Mobile number must be exactly 10 digits")
+    .max(10, "Mobile number must be exactly 10 digits")
+    .regex(/^\d{10}$/, "Mobile number must contain only digits"),
+  nominee_relationship: z.string().min(1, "Nominee relationship is required"),
 
   // Complex fields
   languages_known: z
     .array(
       z.object({
-        language: z.string().optional(),
-        read: z.boolean().optional(),
-        write: z.boolean().optional(),
-        speak: z.boolean().optional(),
+        language: z.string().min(1, "Language is required"),
+        read: z.boolean(),
+        write: z.boolean(),
+        speak: z.boolean(),
       }),
     )
-    .default([]),
+    .min(1, "At least one language is required"),
   family_dependants: z
     .array(
       z.object({
-        name: z.string().optional(),
-        relationship: z.string().optional(),
-        mobile: z.string().optional(),
-        occupation: z.string().optional(),
+        name: z.string().min(1, "Name is required"),
+        relationship: z.string().min(1, "Relationship is required"),
+        mobile: z.string()
+          .min(10, "Mobile number must be exactly 10 digits")
+          .max(10, "Mobile number must be exactly 10 digits")
+          .regex(/^\d{10}$/, "Mobile number must contain only digits"),
+        occupation: z.string().min(1, "Occupation is required"),
       }),
     )
-    .default([]),
+    .min(1, "At least one family dependant is required"),
   academic_qualifications: z
     .array(
       z.object({
-        degree: z.string().optional(),
-        university: z.string().optional(),
-        passing_year: z.string().optional(),
-        percentage: z.string().optional(),
+        degree: z.string().min(1, "Degree is required"),
+        university: z.string().min(1, "University is required"),
+        passing_year: z.string().min(1, "Passing year is required"),
+        percentage: z.string().min(1, "Percentage is required"),
       }),
     )
-    .default([]),
+    .min(1, "At least one academic qualification is required"),
   professional_qualifications: z
     .array(
       z.object({
-        certification: z.string().optional(),
-        institute: z.string().optional(),
-        year: z.string().optional(),
-        percentage: z.string().optional(),
+        certification: z.string().min(1, "Certification is required"),
+        institute: z.string().min(1, "Institute is required"),
+        year: z.string().min(1, "Year is required"),
+        percentage: z.string().min(1, "Percentage is required"),
       }),
     )
-    .default([]),
+    .min(1, "At least one professional qualification is required"),
   is_fresher: z.boolean().default(false),
   work_experience: z
     .array(
       z.object({
-        organization: z.string().optional(),
-        type: z.string().optional(),
-        duration: z.string().optional(),
-        designation: z.string().optional(),
-        job_profile: z.string().optional(),
+        organization: z.string().min(1, "Organization is required"),
+        type: z.string().min(1, "Type is required"),
+        duration: z.string().min(1, "Duration is required"),
+        designation: z.string().min(1, "Designation is required"),
+        job_profile: z.string().min(1, "Job profile is required"),
       }),
     )
-    .default([]),
+    .refine((data) => data.length > 0, {
+      message: "Work experience is required for non-freshers",
+    }),
 
   // References
   references: z
     .array(
       z.object({
-        name: z.string().optional(),
-        designation: z.string().optional(),
-        company: z.string().optional(),
-        address: z.string().optional(),
-        contact_no: z.string().optional(),
-        email: z.string().optional(),
+        name: z.string().min(1, "Name is required"),
+        designation: z.string().min(1, "Designation is required"),
+        company: z.string().min(1, "Company is required"),
+        address: z.string().min(1, "Address is required"),
+        contact_no: z.string()
+          .min(10, "Contact number must be exactly 10 digits")
+          .max(10, "Contact number must be exactly 10 digits")
+          .regex(/^\d{10}$/, "Contact number must contain only digits"),
+        email: z.string()
+          .min(1, "Email is required")
+          .email("Please enter a valid email address"),
       }),
     )
-    .default([]),
+    .length(2, "Exactly 2 references are required"),
 
   // Agreement
   agreement_accepted: z.boolean().default(false),
@@ -157,11 +176,10 @@ export default function InternshipForm() {
     resolver: zodResolver(formSchema),
     mode: "onSubmit",
     defaultValues: {
-      company_name: "ABANS Group",
-      languages_known: [],
-      family_dependants: [],
-      academic_qualifications: [],
-      professional_qualifications: [],
+      languages_known: [{ language: "", read: false, write: false, speak: false }],
+      family_dependants: [{ name: "", relationship: "", mobile: "", occupation: "" }],
+      academic_qualifications: [{ degree: "", university: "", passing_year: "", percentage: "" }],
+      professional_qualifications: [{ certification: "", institute: "", year: "", percentage: "" }],
       work_experience: [],
       references: [
         { name: "", designation: "", company: "", address: "", contact_no: "", email: "" },
@@ -222,6 +240,13 @@ export default function InternshipForm() {
   }
 
   const onSubmit = async (data: FormData) => {
+    // Check photo upload requirement
+    if (!photoFile) {
+      setSaveMessage("Photo upload is required")
+      setTimeout(() => setSaveMessage(""), 3000)
+      return
+    }
+
     // Only check terms and conditions
     if (!data.agreement_accepted) {
       setSaveMessage("Please accept the terms and conditions to submit the form")
