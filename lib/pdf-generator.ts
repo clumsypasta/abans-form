@@ -96,8 +96,10 @@ const addLogoToPDF = async (doc: jsPDF, x: number, y: number): Promise<void> => 
       reader.readAsDataURL(blob)
     })
     
-    // Add logo with proper aspect ratio
-    doc.addImage(base64, 'PNG', x, y, 30, 12)
+    // Add logo with proper aspect ratio - maintaining 2.5:1 ratio like in form
+    const logoWidth = 35
+    const logoHeight = 14
+    doc.addImage(base64, 'PNG', x, y, logoWidth, logoHeight, undefined, 'FAST')
   } catch (error) {
     console.error('Error loading logo:', error)
   }
@@ -114,8 +116,8 @@ const checkPageBreak = (doc: jsPDF, currentY: number, neededSpace: number = 30):
 const addSectionHeader = (doc: jsPDF, title: string, x: number, y: number): number => {
   y += 8
   
-  // Section background
-  doc.setFillColor(0, 188, 212)
+  // Section background - using form's dark theme accent color
+  doc.setFillColor(0, 123, 138) // Slightly darker cyan for better contrast
   doc.rect(x, y - 6, 170, 12, 'F')
   
   // Section title
@@ -198,8 +200,8 @@ const addArrayTable = (doc: jsPDF, title: string, items: any[], x: number, y: nu
   // Calculate total table width
   const totalWidth = columns.reduce((sum, col) => sum + col.width, 0)
   
-  // Table header
-  doc.setFillColor(0, 188, 212)
+  // Table header - matching section header color
+  doc.setFillColor(0, 123, 138)
   doc.rect(x, y - 2, totalWidth, headerHeight, 'F')
   
   doc.setFont('helvetica', 'bold')
@@ -271,21 +273,22 @@ export const generateFormPDF = async (formData: FormDataForPDF, formId?: string)
   const doc = new jsPDF('p', 'mm', 'a4')
   let currentY = 20
 
-  // Header with logo
-  doc.setFillColor(0, 188, 212)
+  // Header with logo - using dark theme colors
+  doc.setFillColor(34, 40, 49) // Dark bluish background like form header
   doc.rect(0, 0, 210, 40, 'F')
   
   doc.setFontSize(28)
   doc.setFont('helvetica', 'bold')
-  doc.setTextColor(255, 255, 255)
+  doc.setTextColor(0, 188, 212) // Cyan color for main title
   doc.text('ABANS GROUP', 20, 20)
   
   doc.setFontSize(16)
   doc.setFont('helvetica', 'normal')
+  doc.setTextColor(255, 255, 255) // White for subtitle
   doc.text('Joining Formality Form', 20, 30)
   
-  // Add logo
-  await addLogoToPDF(doc, 160, 14)
+  // Add logo with proper scaling
+  await addLogoToPDF(doc, 155, 10)
   
   currentY = 50
   
@@ -444,7 +447,7 @@ export const generateFormPDF = async (formData: FormDataForPDF, formId?: string)
 
   // Footer
   currentY = checkPageBreak(doc, currentY, 25)
-  doc.setDrawColor(0, 188, 212)
+  doc.setDrawColor(0, 123, 138)
   doc.setLineWidth(0.5)
   doc.line(20, currentY, 190, currentY)
   currentY += 8
