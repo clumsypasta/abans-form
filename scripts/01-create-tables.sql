@@ -51,6 +51,21 @@ CREATE TABLE IF NOT EXISTS internship_forms (
   agreement_accepted BOOLEAN DEFAULT false,
   sections_completed JSONB DEFAULT '[]'::jsonb,
   
+  -- Document URLs
+  aadhar_url TEXT,
+  pan_url TEXT,
+  ssc_marksheet_url TEXT,
+  ssc_passing_url TEXT,
+  hsc_marksheet_url TEXT,
+  hsc_passing_url TEXT,
+  graduation_marksheet_url TEXT,
+  graduation_passing_url TEXT,
+  postgrad_marksheet_url TEXT,
+  postgrad_passing_url TEXT,
+  salary_slips_urls TEXT, -- JSON array of URLs
+  increment_letter_url TEXT,
+  offer_letter_url TEXT,
+  
   -- PDF storage
   pdf_url TEXT
 );

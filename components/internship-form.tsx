@@ -19,6 +19,7 @@ import { FamilySection } from "./sections/family-section"
 import { AcademicSection } from "./sections/academic-section"
 import { ProfessionalSection } from "./sections/professional-section"
 import { WorkExperienceSection } from "./sections/work-experience-section"
+import { DocumentsSection, type DocumentFiles } from "./sections/documents-section"
 import { ReferenceSection } from "./sections/reference-section"
 import { SuccessScreen } from "./success-screen"
 
@@ -157,6 +158,7 @@ const sections = [
   { id: "academic", title: "Academic Qualifications", description: "Educational background" },
   { id: "professional", title: "Professional Qualifications", description: "Certifications and training" },
   { id: "work", title: "Work Experience", description: "Employment history and nominee details" },
+  { id: "documents", title: "Document Upload", description: "Upload required documents (KYC, Education, Employment)" },
   { id: "reference", title: "References", description: "Professional references (2 required)" },
 ]
 
@@ -167,6 +169,24 @@ export default function InternshipForm() {
   const [submittedFormData, setSubmittedFormData] = useState<FormData | null>(null)
   const [submittedFormId, setSubmittedFormId] = useState<string | null>(null)
   const [photoFile, setPhotoFile] = useState<File | null>(null)
+  const [documents, setDocuments] = useState<DocumentFiles>({
+    kyc: { aadhar: null, pan: null },
+    education: {
+      ssc_marksheet: null,
+      ssc_passing: null,
+      hsc_marksheet: null,
+      hsc_passing: null,
+      graduation_marksheet: null,
+      graduation_passing: null,
+      postgrad_marksheet: null,
+      postgrad_passing: null,
+    },
+    salary: {
+      salary_slips: [],
+      increment_letter: null,
+      offer_letter: null,
+    }
+  })
   const [completedSections, setCompletedSections] = useState<Set<number>>(new Set())
   const [isSaving, setIsSaving] = useState(false)
   const [saveMessage, setSaveMessage] = useState("")
@@ -247,6 +267,27 @@ export default function InternshipForm() {
       return
     }
 
+    // Check required documents
+    const requiredKYC = documents.kyc.aadhar && documents.kyc.pan
+    const requiredEducation = documents.education.ssc_marksheet && 
+                              documents.education.ssc_passing && 
+                              documents.education.hsc_marksheet && 
+                              documents.education.hsc_passing && 
+                              documents.education.graduation_marksheet && 
+                              documents.education.graduation_passing
+
+    if (!requiredKYC) {
+      setSaveMessage("Please upload all required KYC documents")
+      setTimeout(() => setSaveMessage(""), 3000)
+      return
+    }
+
+    if (!requiredEducation) {
+      setSaveMessage("Please upload all required education documents")
+      setTimeout(() => setSaveMessage(""), 3000)
+      return
+    }
+
     // Only check terms and conditions
     if (!data.agreement_accepted) {
       setSaveMessage("Please accept the terms and conditions to submit the form")
@@ -264,6 +305,8 @@ export default function InternshipForm() {
       }
 
       let photoUrl = ""
+      const documentUrls: Record<string, string> = {}
+
       if (photoFile) {
         try {
           const photoPath = `photos/${Date.now()}-${photoFile.name}`
@@ -273,6 +316,59 @@ export default function InternshipForm() {
           setSaveMessage("Error uploading photo. Submitting without photo.")
           setTimeout(() => setSaveMessage(""), 3000)
         }
+      }
+
+      // Upload documents
+      try {
+        const timestamp = Date.now()
+        
+        // Upload KYC documents
+        if (documents.kyc.aadhar) {
+          const path = `documents/kyc/${timestamp}-aadhar-${documents.kyc.aadhar.name}`
+          documentUrls.aadhar_url = await uploadFile(documents.kyc.aadhar, path)
+        }
+        if (documents.kyc.pan) {
+          const path = `documents/kyc/${timestamp}-pan-${documents.kyc.pan.name}`
+          documentUrls.pan_url = await uploadFile(documents.kyc.pan, path)
+        }
+
+        // Upload education documents
+        const eduDocs = documents.education
+        const eduFields = Object.keys(eduDocs) as Array<keyof typeof eduDocs>
+        for (const field of eduFields) {
+          const file = eduDocs[field]
+          if (file) {
+            const path = `documents/education/${timestamp}-${field}-${file.name}`
+            documentUrls[`${field}_url`] = await uploadFile(file, path)
+          }
+        }
+
+        // Upload salary documents
+        if (documents.salary.increment_letter) {
+          const path = `documents/salary/${timestamp}-increment-${documents.salary.increment_letter.name}`
+          documentUrls.increment_letter_url = await uploadFile(documents.salary.increment_letter, path)
+        }
+        if (documents.salary.offer_letter) {
+          const path = `documents/salary/${timestamp}-offer-${documents.salary.offer_letter.name}`
+          documentUrls.offer_letter_url = await uploadFile(documents.salary.offer_letter, path)
+        }
+        
+        // Upload salary slips
+        const salarySlipUrls: string[] = []
+        for (let i = 0; i < documents.salary.salary_slips.length; i++) {
+          const file = documents.salary.salary_slips[i]
+          const path = `documents/salary/${timestamp}-salary-slip-${i + 1}-${file.name}`
+          const url = await uploadFile(file, path)
+          salarySlipUrls.push(url)
+        }
+        if (salarySlipUrls.length > 0) {
+          documentUrls.salary_slips_urls = JSON.stringify(salarySlipUrls)
+        }
+      } catch (uploadError) {
+        console.error("Error uploading documents:", uploadError)
+        setSaveMessage("Error uploading documents. Please try again.")
+        setTimeout(() => setSaveMessage(""), 3000)
+        return
       }
 
       // Convert empty date strings to null for proper database handling
@@ -292,6 +388,7 @@ export default function InternshipForm() {
       const formData: Partial<InternshipFormData> = {
         ...processedData,
         photo_url: photoUrl,
+        ...documentUrls,
         sections_completed: Array.from(completedSections).map((i) => sections[i].id),
       }
 
@@ -478,7 +575,8 @@ export default function InternshipForm() {
                   {currentSection === 3 && <AcademicSection form={form} />}
                   {currentSection === 4 && <ProfessionalSection form={form} />}
                   {currentSection === 5 && <WorkExperienceSection form={form} />}
-                  {currentSection === 6 && <ReferenceSection form={form} />}
+                  {currentSection === 6 && <DocumentsSection form={form} documents={documents} setDocuments={setDocuments} />}
+                  {currentSection === 7 && <ReferenceSection form={form} />}
                 </motion.div>
               </AnimatePresence>
 
