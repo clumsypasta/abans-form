@@ -96,325 +96,351 @@ const addLogoToPDF = async (doc: jsPDF, x: number, y: number): Promise<void> => 
       reader.readAsDataURL(blob)
     })
     
-    // Create an image element to get natural dimensions
-    const img = new Image()
-    img.onload = () => {
-      const aspectRatio = img.naturalWidth / img.naturalHeight
-      const logoWidth = 35
-      const logoHeight = logoWidth / aspectRatio
-      
-      // Add logo with proper aspect ratio
-      doc.addImage(base64, 'PNG', x, y, logoWidth, logoHeight)
-    }
-    img.src = base64
-    
-    // Fallback dimensions if image doesn't load properly
-    doc.addImage(base64, 'PNG', x, y, 35, 15)
+    // Add logo with proper aspect ratio
+    doc.addImage(base64, 'PNG', x, y, 30, 12)
   } catch (error) {
     console.error('Error loading logo:', error)
   }
 }
 
-const addText = (doc: jsPDF, text: string, x: number, y: number, maxWidth?: number): number => {
-  if (!text || text.trim() === '') return y + 7
-  
-  if (maxWidth) {
-    const lines = doc.splitTextToSize(text, maxWidth)
-    doc.text(lines, x, y)
-    return y + (lines.length * 7) + 2 // Better line spacing
-  } else {
-    doc.text(text, x, y)
-    return y + 7
-  }
-}
-
-const addSection = (doc: jsPDF, title: string, x: number, y: number): number => {
-  // Add some padding before section
-  y += 5
-  
-  doc.setFontSize(16)
-  doc.setFont('helvetica', 'bold')
-  doc.setTextColor(0, 188, 212) // #00BCD4
-  doc.text(title, x, y)
-  
-  // Add decorative line under section title
-  doc.setDrawColor(0, 188, 212)
-  doc.setLineWidth(0.8)
-  doc.line(x, y + 2, x + 60, y + 2)
-  
-  // Add subtle background for section
-  doc.setFillColor(248, 249, 250)
-  doc.rect(x - 5, y - 8, 190, 12, 'F')
-  
-  // Rewrite the title over the background
-  doc.setFontSize(16)
-  doc.setFont('helvetica', 'bold')
-  doc.setTextColor(0, 188, 212)
-  doc.text(title, x, y)
-  
-  doc.setTextColor(0, 0, 0)
-  doc.setFont('helvetica', 'normal')
-  doc.setFontSize(11)
-  doc.setLineWidth(0.2)
-  
-  return y + 12
-}
-
-const addKeyValue = (doc: jsPDF, key: string, value: string, x: number, y: number, maxWidth: number = 85): number => {
-  doc.setFont('helvetica', 'bold')
-  doc.setFontSize(10)
-  doc.setTextColor(60, 60, 60)
-  doc.text(`${key}:`, x, y)
-  
-  doc.setFont('helvetica', 'normal')
-  doc.setFontSize(10)
-  doc.setTextColor(40, 40, 40)
-  
-  const displayValue = value && value.trim() !== '' ? value : 'Not specified'
-  return addText(doc, displayValue, x + 40, y, maxWidth)
-}
-
-const addKeyValueInline = (doc: jsPDF, key: string, value: string, x: number, y: number): number => {
-  doc.setFont('helvetica', 'bold')
-  doc.setFontSize(10)
-  doc.setTextColor(60, 60, 60)
-  doc.text(`${key}:`, x, y)
-  
-  doc.setFont('helvetica', 'normal')
-  doc.setFontSize(10)
-  doc.setTextColor(40, 40, 40)
-  
-  const displayValue = value && value.trim() !== '' ? value : 'Not specified'
-  doc.text(displayValue, x + doc.getTextWidth(`${key}: `), y)
-  
-  return y + 8
-}
-
-const checkPageBreak = (doc: jsPDF, currentY: number, neededSpace: number = 25): number => {
-  if (currentY + neededSpace > 270) { // Leave more margin at bottom
+const checkPageBreak = (doc: jsPDF, currentY: number, neededSpace: number = 30): number => {
+  if (currentY + neededSpace > 270) {
     doc.addPage()
-    return 25 // Start with more top margin
+    return 25
   }
   return currentY
 }
 
-const addArraySection = (doc: jsPDF, title: string, items: any[], x: number, y: number, renderItem: (item: any, itemY: number) => number): number => {
-  y = checkPageBreak(doc, y, 30)
-  y = addSection(doc, title, x, y)
+const addSectionHeader = (doc: jsPDF, title: string, x: number, y: number): number => {
+  y += 8
+  
+  // Section background
+  doc.setFillColor(0, 188, 212)
+  doc.rect(x, y - 6, 170, 12, 'F')
+  
+  // Section title
+  doc.setFontSize(14)
+  doc.setFont('helvetica', 'bold')
+  doc.setTextColor(255, 255, 255)
+  doc.text(title, x + 5, y + 2)
+  
+  // Reset colors
+  doc.setTextColor(0, 0, 0)
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(10)
+  
+  return y + 18
+}
+
+const addTable = (doc: jsPDF, data: Array<{label: string, value: string}>, x: number, y: number, colWidth1: number = 70, colWidth2: number = 100): number => {
+  const rowHeight = 8
+  const tableWidth = colWidth1 + colWidth2
+  
+  // Table border
+  doc.setDrawColor(200, 200, 200)
+  doc.setLineWidth(0.5)
+  
+  data.forEach((row, index) => {
+    const currentY = y + (index * rowHeight)
+    
+    // Alternate row colors
+    if (index % 2 === 0) {
+      doc.setFillColor(248, 249, 250)
+      doc.rect(x, currentY - 2, tableWidth, rowHeight, 'F')
+    }
+    
+    // Cell borders
+    doc.rect(x, currentY - 2, colWidth1, rowHeight)
+    doc.rect(x + colWidth1, currentY - 2, colWidth2, rowHeight)
+    
+    // Label (left column)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(9)
+    doc.setTextColor(60, 60, 60)
+    doc.text(row.label, x + 3, currentY + 3)
+    
+    // Value (right column)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(9)
+    doc.setTextColor(40, 40, 40)
+    
+    const displayValue = row.value && row.value.trim() !== '' ? row.value : 'Not specified'
+    const textLines = doc.splitTextToSize(displayValue, colWidth2 - 6)
+    
+    if (textLines.length > 1) {
+      // Multi-line text
+      textLines.forEach((line: string, lineIndex: number) => {
+        doc.text(line, x + colWidth1 + 3, currentY + 3 + (lineIndex * 4))
+      })
+    } else {
+      doc.text(displayValue, x + colWidth1 + 3, currentY + 3)
+    }
+  })
+  
+  return y + (data.length * rowHeight) + 5
+}
+
+const addArrayTable = (doc: jsPDF, title: string, items: any[], x: number, y: number, columns: Array<{key: string, label: string, width: number}>): number => {
+  y = checkPageBreak(doc, y, 40)
+  y = addSectionHeader(doc, title, x, y)
   
   if (!items || items.length === 0) {
     doc.setFont('helvetica', 'italic')
     doc.setFontSize(10)
     doc.setTextColor(120, 120, 120)
-    y = addText(doc, 'No information provided', x + 5, y)
-    doc.setFont('helvetica', 'normal')
-    doc.setTextColor(40, 40, 40)
-    return y + 8
+    doc.text('No information provided', x + 5, y)
+    return y + 15
   }
   
-  items.forEach((item, index) => {
-    y = checkPageBreak(doc, y, 25)
-    
-    // Add item number for multiple items
-    if (items.length > 1) {
-      doc.setFont('helvetica', 'bold')
-      doc.setFontSize(10)
-      doc.setTextColor(0, 188, 212)
-      doc.text(`${index + 1}.`, x + 5, y)
-      doc.setFont('helvetica', 'normal')
-      doc.setTextColor(40, 40, 40)
-      y += 5
-    }
-    
-    y = renderItem(item, y + 5)
-    y += 8 // Space between items
+  const rowHeight = 8
+  const headerHeight = 10
+  
+  // Calculate total table width
+  const totalWidth = columns.reduce((sum, col) => sum + col.width, 0)
+  
+  // Table header
+  doc.setFillColor(0, 188, 212)
+  doc.rect(x, y - 2, totalWidth, headerHeight, 'F')
+  
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(9)
+  doc.setTextColor(255, 255, 255)
+  
+  let currentX = x
+  columns.forEach(col => {
+    doc.text(col.label, currentX + 2, y + 5)
+    currentX += col.width
   })
   
-  return y + 5
+  y += headerHeight
+  
+  // Table rows
+  doc.setTextColor(40, 40, 40)
+  doc.setFont('helvetica', 'normal')
+  doc.setDrawColor(200, 200, 200)
+  doc.setLineWidth(0.5)
+  
+  items.forEach((item, index) => {
+    // Check for page break
+    if (y + rowHeight > 270) {
+      doc.addPage()
+      y = 25
+    }
+    
+    // Alternate row colors
+    if (index % 2 === 0) {
+      doc.setFillColor(248, 249, 250)
+      doc.rect(x, y - 2, totalWidth, rowHeight, 'F')
+    }
+    
+    // Cell borders and content
+    currentX = x
+    columns.forEach(col => {
+      doc.rect(currentX, y - 2, col.width, rowHeight)
+      
+      const value = item[col.key] || ''
+      let displayValue = ''
+      
+      if (col.key === 'skills' && Array.isArray(value)) {
+        displayValue = value.join(', ')
+      } else if (typeof value === 'boolean') {
+        displayValue = value ? 'Yes' : 'No'
+      } else {
+        displayValue = String(value)
+      }
+      
+      if (displayValue.trim() === '') displayValue = '-'
+      
+      const textLines = doc.splitTextToSize(displayValue, col.width - 4)
+      if (textLines.length > 1) {
+        doc.text(textLines[0] + '...', currentX + 2, y + 4)
+      } else {
+        doc.text(displayValue, currentX + 2, y + 4)
+      }
+      
+      currentX += col.width
+    })
+    
+    y += rowHeight
+  })
+  
+  return y + 10
 }
 
 export const generateFormPDF = async (formData: FormDataForPDF, formId?: string): Promise<{ blob: Blob; filename: string }> => {
   const doc = new jsPDF('p', 'mm', 'a4')
-  let currentY = 25
+  let currentY = 20
 
-  // Header with elegant design
+  // Header with logo
   doc.setFillColor(0, 188, 212)
-  doc.rect(0, 0, 210, 35, 'F')
+  doc.rect(0, 0, 210, 40, 'F')
   
-  doc.setFontSize(24)
+  doc.setFontSize(28)
   doc.setFont('helvetica', 'bold')
   doc.setTextColor(255, 255, 255)
   doc.text('ABANS GROUP', 20, 20)
   
-  doc.setFontSize(14)
+  doc.setFontSize(16)
   doc.setFont('helvetica', 'normal')
-  doc.text('Joining Formality Form', 20, 28)
+  doc.text('Joining Formality Form', 20, 30)
   
-  // Add logo to the right with proper scaling
-  await addLogoToPDF(doc, 155, 8)
+  // Add logo
+  await addLogoToPDF(doc, 160, 14)
   
-  currentY = 45
+  currentY = 50
   
-  // Form ID and date
+  // Form metadata
+  doc.setFontSize(10)
+  doc.setTextColor(100, 100, 100)
+  doc.setFont('helvetica', 'normal')
+  
   if (formId) {
-    doc.setFontSize(10)
-    doc.setTextColor(100, 100, 100)
-    doc.setFont('helvetica', 'bold')
     doc.text(`Form ID: JFF-${formId}`, 20, currentY)
     currentY += 6
   }
   
-  doc.setFont('helvetica', 'normal')
   doc.text(`Generated: ${new Date().toLocaleDateString('en-GB')} at ${new Date().toLocaleTimeString('en-GB')}`, 20, currentY)
   currentY += 15
 
   // Personal Information Section
   currentY = checkPageBreak(doc, currentY, 100)
-  currentY = addSection(doc, 'Personal Information', 20, currentY)
+  currentY = addSectionHeader(doc, 'Personal Information', 20, currentY)
   
-  // Two-column layout for personal info
-  const leftCol = 20
-  const rightCol = 110
-  let leftY = currentY
-  let rightY = currentY
+  const personalData = [
+    { label: 'First Name', value: formData.first_name || '' },
+    { label: 'Middle Name', value: formData.middle_name || '' },
+    { label: 'Last Name', value: formData.last_name || '' },
+    { label: 'Employee Code', value: formData.employee_code || '' },
+    { label: 'Father/Husband Name', value: formData.father_husband_name || '' },
+    { label: 'Department', value: formData.department || '' },
+    { label: 'Date of Joining', value: formData.date_of_joining || '' },
+    { label: 'Place/Location', value: formData.place_location || '' },
+    { label: 'Date of Birth', value: formData.date_of_birth || '' },
+    { label: 'Blood Group', value: formData.blood_group || '' },
+    { label: 'Marital Status', value: formData.marital_status || '' },
+    { label: 'Nationality', value: formData.nationality || '' },
+    { label: 'Phone (Residence)', value: formData.phone_residence || '' },
+    { label: 'Phone (Mobile)', value: formData.phone_mobile || '' },
+    { label: 'Personal Email', value: formData.personal_email || '' },
+    { label: 'UAN', value: formData.uan || '' },
+    { label: 'Last PF No', value: formData.last_pf_no || '' },
+    { label: 'Present Address', value: formData.present_address || '' },
+    { label: 'Permanent Address', value: formData.permanent_address || '' }
+  ]
   
-  leftY = addKeyValue(doc, 'First Name', formData.first_name || '', leftCol, leftY, 60)
-  rightY = addKeyValue(doc, 'Middle Name', formData.middle_name || '', rightCol, rightY, 60)
-  
-  const maxY1 = Math.max(leftY, rightY)
-  leftY = rightY = maxY1
-  
-  leftY = addKeyValue(doc, 'Last Name', formData.last_name || '', leftCol, leftY, 60)
-  rightY = addKeyValue(doc, 'Employee Code', formData.employee_code || '', rightCol, rightY, 60)
-  
-  const maxY2 = Math.max(leftY, rightY)
-  leftY = rightY = maxY2
-  
-  leftY = addKeyValue(doc, 'Father/Husband Name', formData.father_husband_name || '', leftCol, leftY, 60)
-  rightY = addKeyValue(doc, 'Department', formData.department || '', rightCol, rightY, 60)
-  
-  const maxY3 = Math.max(leftY, rightY)
-  leftY = rightY = maxY3
-  
-  leftY = addKeyValue(doc, 'Date of Joining', formData.date_of_joining || '', leftCol, leftY, 60)
-  rightY = addKeyValue(doc, 'Place/Location', formData.place_location || '', rightCol, rightY, 60)
-  
-  const maxY4 = Math.max(leftY, rightY)
-  leftY = rightY = maxY4
-  
-  leftY = addKeyValue(doc, 'Date of Birth', formData.date_of_birth || '', leftCol, leftY, 60)
-  rightY = addKeyValue(doc, 'Blood Group', formData.blood_group || '', rightCol, rightY, 60)
-  
-  currentY = Math.max(leftY, rightY) + 5
-  
-  // Contact Information
-  currentY = addKeyValue(doc, 'Phone (Residence)', formData.phone_residence || '', 20, currentY, 160)
-  currentY = addKeyValue(doc, 'Phone (Mobile)', formData.phone_mobile || '', 20, currentY, 160)
-  currentY = addKeyValue(doc, 'Personal Email', formData.personal_email || '', 20, currentY, 160)
-  currentY = addKeyValue(doc, 'Marital Status', formData.marital_status || '', 20, currentY, 160)
-  currentY = addKeyValue(doc, 'Nationality', formData.nationality || '', 20, currentY, 160)
-  currentY = addKeyValue(doc, 'UAN', formData.uan || '', 20, currentY, 160)
-  currentY = addKeyValue(doc, 'Last PF No', formData.last_pf_no || '', 20, currentY, 160)
-  
-  currentY += 5
-  currentY = addKeyValue(doc, 'Present Address', formData.present_address || '', 20, currentY, 160)
-  currentY += 3
-  currentY = addKeyValue(doc, 'Permanent Address', formData.permanent_address || '', 20, currentY, 160)
-  currentY += 15
+  currentY = addTable(doc, personalData, 20, currentY)
 
   // Emergency Contact Section
   currentY = checkPageBreak(doc, currentY, 50)
-  currentY = addSection(doc, 'Emergency Contact', 20, currentY)
-  currentY = addKeyValue(doc, 'Name', formData.emergency_contact_name || '', 20, currentY, 160)
-  currentY = addKeyValue(doc, 'Phone', formData.emergency_contact_phone || '', 20, currentY, 160)
-  currentY = addKeyValue(doc, 'Relationship', formData.emergency_contact_relationship || '', 20, currentY, 160)
-  currentY += 3
-  currentY = addKeyValue(doc, 'Address', formData.emergency_contact_address || '', 20, currentY, 160)
-  currentY += 15
+  currentY = addSectionHeader(doc, 'Emergency Contact', 20, currentY)
+  
+  const emergencyData = [
+    { label: 'Name', value: formData.emergency_contact_name || '' },
+    { label: 'Phone', value: formData.emergency_contact_phone || '' },
+    { label: 'Relationship', value: formData.emergency_contact_relationship || '' },
+    { label: 'Address', value: formData.emergency_contact_address || '' }
+  ]
+  
+  currentY = addTable(doc, emergencyData, 20, currentY)
 
   // Nominee Details Section
-  currentY = checkPageBreak(doc, currentY, 40)
-  currentY = addSection(doc, 'Nominee Details', 20, currentY)
-  currentY = addKeyValue(doc, 'Name', formData.nominee_name || '', 20, currentY, 160)
-  currentY = addKeyValue(doc, 'Date of Birth', formData.nominee_dob || '', 20, currentY, 160)
-  currentY = addKeyValue(doc, 'Mobile', formData.nominee_mobile || '', 20, currentY, 160)
-  currentY = addKeyValue(doc, 'Relationship', formData.nominee_relationship || '', 20, currentY, 160)
-  currentY += 15
+  currentY = checkPageBreak(doc, currentY, 50)
+  currentY = addSectionHeader(doc, 'Nominee Details', 20, currentY)
+  
+  const nomineeData = [
+    { label: 'Name', value: formData.nominee_name || '' },
+    { label: 'Date of Birth', value: formData.nominee_dob || '' },
+    { label: 'Mobile', value: formData.nominee_mobile || '' },
+    { label: 'Relationship', value: formData.nominee_relationship || '' }
+  ]
+  
+  currentY = addTable(doc, nomineeData, 20, currentY)
 
   // Languages Known Section
-  currentY = addArraySection(doc, 'Languages Known', formData.languages_known || [], 20, currentY, (lang, itemY) => {
-    const skills = []
-    if (lang.read) skills.push('Read')
-    if (lang.write) skills.push('Write')
-    if (lang.speak) skills.push('Speak')
-    
-    itemY = addKeyValueInline(doc, 'Language', lang.language || '', 25, itemY)
-    return addKeyValueInline(doc, 'Skills', skills.length > 0 ? skills.join(', ') : 'None', 25, itemY)
-  })
+  const languagesWithSkills = (formData.languages_known || []).map(lang => ({
+    language: lang.language || '',
+    skills: [
+      lang.read ? 'Read' : '',
+      lang.write ? 'Write' : '',
+      lang.speak ? 'Speak' : ''
+    ].filter(Boolean)
+  }))
+  
+  currentY = addArrayTable(doc, 'Languages Known', languagesWithSkills, 20, currentY, [
+    { key: 'language', label: 'Language', width: 60 },
+    { key: 'skills', label: 'Skills', width: 110 }
+  ])
 
   // Family Dependants Section
-  currentY = addArraySection(doc, 'Family Dependants', formData.family_dependants || [], 20, currentY, (dep, itemY) => {
-    itemY = addKeyValueInline(doc, 'Name', dep.name || '', 25, itemY)
-    itemY = addKeyValueInline(doc, 'Relationship', dep.relationship || '', 25, itemY)
-    itemY = addKeyValueInline(doc, 'Mobile', dep.mobile || '', 25, itemY)
-    return addKeyValueInline(doc, 'Occupation', dep.occupation || '', 25, itemY)
-  })
+  currentY = addArrayTable(doc, 'Family Dependants', formData.family_dependants || [], 20, currentY, [
+    { key: 'name', label: 'Name', width: 50 },
+    { key: 'relationship', label: 'Relationship', width: 40 },
+    { key: 'mobile', label: 'Mobile', width: 40 },
+    { key: 'occupation', label: 'Occupation', width: 40 }
+  ])
 
   // Academic Qualifications Section
-  currentY = addArraySection(doc, 'Academic Qualifications', formData.academic_qualifications || [], 20, currentY, (qual, itemY) => {
-    itemY = addKeyValueInline(doc, 'Degree', qual.degree || '', 25, itemY)
-    itemY = addKeyValueInline(doc, 'University', qual.university || '', 25, itemY)
-    itemY = addKeyValueInline(doc, 'Passing Year', qual.passing_year || '', 25, itemY)
-    return addKeyValueInline(doc, 'Percentage', qual.percentage ? `${qual.percentage}%` : '', 25, itemY)
-  })
+  currentY = addArrayTable(doc, 'Academic Qualifications', formData.academic_qualifications || [], 20, currentY, [
+    { key: 'degree', label: 'Degree', width: 60 },
+    { key: 'university', label: 'University', width: 60 },
+    { key: 'passing_year', label: 'Year', width: 25 },
+    { key: 'percentage', label: '%', width: 25 }
+  ])
 
   // Professional Qualifications Section
-  currentY = addArraySection(doc, 'Professional Qualifications', formData.professional_qualifications || [], 20, currentY, (qual, itemY) => {
-    itemY = addKeyValueInline(doc, 'Certification', qual.certification || '', 25, itemY)
-    itemY = addKeyValueInline(doc, 'Institute', qual.institute || '', 25, itemY)
-    itemY = addKeyValueInline(doc, 'Year', qual.year || '', 25, itemY)
-    return addKeyValueInline(doc, 'Percentage', qual.percentage ? `${qual.percentage}%` : '', 25, itemY)
-  })
+  currentY = addArrayTable(doc, 'Professional Qualifications', formData.professional_qualifications || [], 20, currentY, [
+    { key: 'certification', label: 'Certification', width: 60 },
+    { key: 'institute', label: 'Institute', width: 60 },
+    { key: 'year', label: 'Year', width: 25 },
+    { key: 'percentage', label: '%', width: 25 }
+  ])
 
   // Work Experience Section
   currentY = checkPageBreak(doc, currentY, 40)
-  currentY = addSection(doc, 'Work Experience', 20, currentY)
-  currentY = addKeyValueInline(doc, 'Is Fresher', formData.is_fresher ? 'Yes' : 'No', 20, currentY)
-  currentY += 5
+  currentY = addSectionHeader(doc, 'Work Experience', 20, currentY)
+  
+  const workStatusData = [
+    { label: 'Is Fresher', value: formData.is_fresher ? 'Yes' : 'No' }
+  ]
+  currentY = addTable(doc, workStatusData, 20, currentY)
   
   if (formData.work_experience && formData.work_experience.length > 0) {
-    currentY = addArraySection(doc, '', formData.work_experience, 20, currentY - 15, (exp, itemY) => {
-      itemY = addKeyValueInline(doc, 'Organization', exp.organization || '', 25, itemY)
-      itemY = addKeyValueInline(doc, 'Designation', exp.designation || '', 25, itemY)
-      itemY = addKeyValueInline(doc, 'Type', exp.type || '', 25, itemY)
-      itemY = addKeyValueInline(doc, 'Duration', exp.duration || '', 25, itemY)
-      return addKeyValue(doc, 'Job Profile', exp.job_profile || '', 25, itemY, 140)
-    })
+    currentY += 5
+    currentY = addArrayTable(doc, 'Work History', formData.work_experience, 20, currentY, [
+      { key: 'organization', label: 'Organization', width: 50 },
+      { key: 'designation', label: 'Designation', width: 40 },
+      { key: 'type', label: 'Type', width: 30 },
+      { key: 'duration', label: 'Duration', width: 50 }
+    ])
   }
-  currentY += 10
 
   // References Section
-  currentY = addArraySection(doc, 'References', formData.references || [], 20, currentY, (ref, itemY) => {
-    itemY = addKeyValueInline(doc, 'Name', ref.name || '', 25, itemY)
-    itemY = addKeyValueInline(doc, 'Designation', ref.designation || '', 25, itemY)
-    itemY = addKeyValueInline(doc, 'Company', ref.company || '', 25, itemY)
-    itemY = addKeyValueInline(doc, 'Contact', ref.contact_no || '', 25, itemY)
-    itemY = addKeyValueInline(doc, 'Email', ref.email || '', 25, itemY)
-    return addKeyValue(doc, 'Address', ref.address || '', 25, itemY, 140)
-  })
+  currentY = addArrayTable(doc, 'References', formData.references || [], 20, currentY, [
+    { key: 'name', label: 'Name', width: 45 },
+    { key: 'designation', label: 'Designation', width: 40 },
+    { key: 'company', label: 'Company', width: 45 },
+    { key: 'contact_no', label: 'Contact', width: 40 }
+  ])
 
-  // Declaration & Agreement Section
+  // Declaration Section
   currentY = checkPageBreak(doc, currentY, 50)
-  currentY = addSection(doc, 'Declaration & Agreement', 20, currentY)
-  currentY = addKeyValueInline(doc, 'Terms Accepted', formData.agreement_accepted ? 'Yes' : 'No', 20, currentY)
-  currentY += 10
+  currentY = addSectionHeader(doc, 'Declaration & Agreement', 20, currentY)
   
-  doc.setFontSize(10)
+  const declarationData = [
+    { label: 'Terms Accepted', value: formData.agreement_accepted ? 'Yes' : 'No' }
+  ]
+  currentY = addTable(doc, declarationData, 20, currentY)
+  
+  currentY += 10
+  doc.setFontSize(9)
   doc.setFont('helvetica', 'italic')
   doc.setTextColor(80, 80, 80)
   const declarationText = 'I hereby declare that the information furnished above is true to the best of my knowledge and belief. I understand that any false information may lead to the termination of employment.'
-  currentY = addText(doc, declarationText, 20, currentY, 170)
-  currentY += 20
+  const declarationLines = doc.splitTextToSize(declarationText, 170)
+  declarationLines.forEach((line: string, index: number) => {
+    doc.text(line, 20, currentY + (index * 5))
+  })
+  currentY += declarationLines.length * 5 + 15
 
   // Footer
   currentY = checkPageBreak(doc, currentY, 25)
@@ -423,11 +449,11 @@ export const generateFormPDF = async (formData: FormDataForPDF, formId?: string)
   doc.line(20, currentY, 190, currentY)
   currentY += 8
   
-  doc.setFontSize(9)
+  doc.setFontSize(8)
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(120, 120, 120)
   doc.text('This document was generated automatically by ABANS Group E-Joining Formalities System', 20, currentY)
-  currentY += 5
+  currentY += 4
   doc.text('For any queries, contact: hr@abans.lk | +94 11 234 5678', 20, currentY)
 
   // Generate blob and filename
