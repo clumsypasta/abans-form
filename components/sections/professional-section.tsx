@@ -1,3 +1,4 @@
+
 "use client"
 
 import type { UseFormReturn } from "react-hook-form"
@@ -63,22 +64,22 @@ export function ProfessionalSection({ form }: ProfessionalSectionProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <FloatingInput
                   label="Certification"
-                  value={qualification.certification}
+                  value={qualification.certification || ""}
                   onChange={(e) => updateQualification(index, "certification", e.target.value)}
                 />
                 <FloatingInput
                   label="Institute"
-                  value={qualification.institute}
+                  value={qualification.institute || ""}
                   onChange={(e) => updateQualification(index, "institute", e.target.value)}
                 />
                 <FloatingInput
                   label="Year"
-                  value={qualification.year}
+                  value={qualification.year || ""}
                   onChange={(e) => updateQualification(index, "year", e.target.value)}
                 />
                 <FloatingInput
                   label="% Marks"
-                  value={qualification.percentage}
+                  value={qualification.percentage || ""}
                   onChange={(e) => updateQualification(index, "percentage", e.target.value)}
                 />
               </div>

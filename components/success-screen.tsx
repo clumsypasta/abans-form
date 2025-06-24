@@ -119,23 +119,6 @@ export function SuccessScreen({ formData, formId }: SuccessScreenProps) {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
-                  onClick={handleDownloadPDF} 
-                  disabled={isGeneratingPDF}
-                  className="bg-[#00BCD4] hover:bg-[#00ACC1] text-white"
-                >
-                  {isGeneratingPDF ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                      Generating PDF...
-                    </>
-                  ) : (
-                    <>
-                      <FileText className="w-4 h-4 mr-2" />
-                      Download Complete Form PDF
-                    </>
-                  )}
-                </Button>
                 <Button onClick={() => window.print()} className="bg-[#4CAF50] hover:bg-[#45a049] text-white">
                   <Download className="w-4 h-4 mr-2" />
                   Download Confirmation
