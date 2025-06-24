@@ -418,7 +418,7 @@ export default function InternshipForm() {
               <img 
                 src={theme === "light" ? "/images/abansup-removebg-preview.png" : "/images/abans-logo.png"} 
                 alt="ABANS Group" 
-                className="h-8 w-auto" 
+                className="h-16 w-[200px] object-contain" 
               />
               <button
                 onClick={toggleTheme}
