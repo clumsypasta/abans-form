@@ -1,11 +1,10 @@
+
 "use client"
 
 import type { UseFormReturn } from "react-hook-form"
 import { Plus, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { FloatingInput } from "@/components/ui/floating-input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
 
 interface AcademicSectionProps {
   form: UseFormReturn<any>
@@ -65,37 +64,28 @@ export function AcademicSection({ form }: AcademicSectionProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <FloatingInput
                   label="Degree"
-                  value={qualification.degree}
+                  value={qualification.degree || ""}
                   onChange={(e) => updateQualification(index, "degree", e.target.value)}
                 />
                 <FloatingInput
                   label="University"
-                  value={qualification.university}
+                  value={qualification.university || ""}
                   onChange={(e) => updateQualification(index, "university", e.target.value)}
                 />
-                <div>
-                  <Select 
-                    value={qualification.mode_of_study} 
-                    onValueChange={(value) => updateQualification(index, "mode_of_study", value)}
-                  >
-                    <SelectTrigger className="h-12 rounded-xl">
-                      <SelectValue placeholder="Mode of Study" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="full_time">Full Time</SelectItem>
-                      <SelectItem value="part_time">Part Time</SelectItem>
-                      <SelectItem value="distance_learning">Distance Learning</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <FloatingInput
+                  label="Mode of Study"
+                  placeholder="Full Time / Part Time / Distance Learning"
+                  value={qualification.mode_of_study || ""}
+                  onChange={(e) => updateQualification(index, "mode_of_study", e.target.value)}
+                />
                 <FloatingInput
                   label="Passing Year"
-                  value={qualification.passing_year}
+                  value={qualification.passing_year || ""}
                   onChange={(e) => updateQualification(index, "passing_year", e.target.value)}
                 />
                 <FloatingInput
                   label="% Marks"
-                  value={qualification.percentage}
+                  value={qualification.percentage || ""}
                   onChange={(e) => updateQualification(index, "percentage", e.target.value)}
                 />
               </div>
