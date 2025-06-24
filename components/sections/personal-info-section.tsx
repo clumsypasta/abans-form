@@ -70,7 +70,7 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
       {/* Name Fields */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <FloatingInput
-          label="First Name"
+          label="First Name *"
           placeholder="Enter your first name"
           {...form.register("first_name")}
           error={form.formState.errors.first_name?.message}
@@ -82,7 +82,7 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
           error={form.formState.errors.middle_name?.message}
         />
         <FloatingInput
-          label="Last Name"
+          label="Last Name *"
           placeholder="Enter your last name"
           {...form.register("last_name")}
           error={form.formState.errors.last_name?.message}
@@ -92,13 +92,13 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
       {/* Employee Details */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FloatingInput
-          label="Father/Husband's Name"
+          label="Father/Husband's Name *"
           placeholder="Enter father/husband's name"
           {...form.register("father_husband_name")}
           error={form.formState.errors.father_husband_name?.message}
         />
         <FloatingInput 
-          label="Place/Location" 
+          label="Place/Location *" 
           placeholder="Enter location" 
           {...form.register("place_location")}
           error={form.formState.errors.place_location?.message}
@@ -108,7 +108,7 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
       {/* Date of Birth */}
       <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
         <FloatingInput 
-          label="Date of Birth" 
+          label="Date of Birth *" 
           type="date" 
           {...form.register("date_of_birth")}
           error={form.formState.errors.date_of_birth?.message}
@@ -118,14 +118,14 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
       {/* Addresses */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FloatingTextarea
-          label="Present Address"
+          label="Present Address *"
           placeholder="Enter your current address"
           {...form.register("present_address")}
           error={form.formState.errors.present_address?.message}
           rows={3}
         />
         <FloatingTextarea
-          label="Permanent Address"
+          label="Permanent Address *"
           placeholder="Enter your permanent address"
           {...form.register("permanent_address")}
           error={form.formState.errors.permanent_address?.message}
@@ -136,13 +136,13 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
       {/* Contact Information */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FloatingInput
-          label="Phone (Residence)"
+          label="Phone (Residence) *"
           placeholder="Enter residence phone number"
           {...form.register("phone_residence")}
           error={form.formState.errors.phone_residence?.message}
         />
         <FloatingInput
-          label="Mobile Number"
+          label="Mobile Number *"
           placeholder="Enter 10-digit mobile number"
           {...form.register("phone_mobile", {
             pattern: {
@@ -165,7 +165,7 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
       {/* Personal Details */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="space-y-3">
-          <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Marital Status</Label>
+          <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Marital Status *</Label>
           <RadioGroup
             value={form.watch("marital_status")}
             onValueChange={(value) => form.setValue("marital_status", value)}
@@ -182,13 +182,13 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
           </RadioGroup>
         </div>
         <FloatingInput 
-          label="Nationality" 
+          label="Nationality *" 
           placeholder="Enter nationality" 
           {...form.register("nationality")}
           error={form.formState.errors.nationality?.message}
         />
         <div className="space-y-3">
-          <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Blood Group</Label>
+          <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Blood Group *</Label>
           <Select value={form.watch("blood_group")} onValueChange={(value) => form.setValue("blood_group", value)}>
             <SelectTrigger className="h-12 rounded-xl">
               <SelectValue placeholder="Select blood group" />
@@ -212,7 +212,7 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
       {/* Email and PF Details */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <FloatingInput
-          label="Personal Email"
+          label="Personal Email *"
           type="email"
           placeholder="Enter complete email address"
           {...form.register("personal_email", {
@@ -252,13 +252,13 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
           <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Emergency Contact 1 (Required)</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FloatingInput
-              label="Name"
+              label="Name *"
               placeholder="Enter emergency contact name"
               {...form.register("emergency_contact_1_name")}
               error={form.formState.errors.emergency_contact_1_name?.message}
             />
             <FloatingInput 
-              label="Phone" 
+              label="Phone *" 
               placeholder="Enter 10-digit phone number" 
               {...form.register("emergency_contact_1_phone", {
                 pattern: {
@@ -277,13 +277,13 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
               error={form.formState.errors.emergency_contact_1_phone?.message}
             />
             <FloatingInput
-              label="Relationship"
+              label="Relationship *"
               placeholder="Enter relationship"
               {...form.register("emergency_contact_1_relationship")}
               error={form.formState.errors.emergency_contact_1_relationship?.message}
             />
             <FloatingTextarea
-              label="Address"
+              label="Address *"
               placeholder="Enter emergency contact address"
               {...form.register("emergency_contact_1_address")}
               error={form.formState.errors.emergency_contact_1_address?.message}

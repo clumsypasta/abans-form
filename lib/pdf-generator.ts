@@ -442,18 +442,18 @@ export const generateFormPDF = async (formData: FormDataForPDF, formId?: string)
   })
   currentY += declarationLines.length * 5 + 20
 
-  // Candidate Signature Area
+  // Candidate Signature Area - moved to right side
   currentY = checkPageBreak(doc, currentY, 40)
   doc.setFontSize(10)
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(40, 40, 40)
-  doc.text('Candidate Signature:', 20, currentY)
+  doc.text('Candidate Signature:', 110, currentY)
   
   // Blank space for signature
   currentY += 25
   
   // Date line
-  doc.text('Date: _______________', 20, currentY)
+  doc.text('Date: _______________', 110, currentY)
   
   currentY += 20
 
