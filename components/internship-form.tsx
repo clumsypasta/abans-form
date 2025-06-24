@@ -56,7 +56,7 @@ const formSchema = z.object({
   emergency_contact_phone: z.string()
     .min(10, "Phone number must be exactly 10 digits")
     .max(10, "Phone number must be exactly 10 digits")
-    .regex(/^\d{10}$/, "Phone number must contain only digits"),
+    .regex(/^\d{10}$/, "Mobile number must contain only digits"),
 
   // Nominee
   nominee_name: z.string().min(1, "Nominee name is required"),
@@ -185,6 +185,7 @@ export default function InternshipForm() {
       salary_slips: [],
       increment_letter: null,
       offer_letter: null,
+      relieving_letter: null
     }
   })
   const [completedSections, setCompletedSections] = useState<Set<number>>(new Set())
@@ -321,7 +322,7 @@ export default function InternshipForm() {
       // Upload documents
       try {
         const timestamp = Date.now()
-        
+
         // Upload KYC documents
         if (documents.kyc.aadhar) {
           const path = `documents/kyc/${timestamp}-aadhar-${documents.kyc.aadhar.name}`
@@ -352,7 +353,11 @@ export default function InternshipForm() {
           const path = `documents/salary/${timestamp}-offer-${documents.salary.offer_letter.name}`
           documentUrls.offer_letter_url = await uploadFile(documents.salary.offer_letter, path)
         }
-        
+        if (documents.salary.relieving_letter) {
+          const path = `documents/salary/${timestamp}-relieving-${documents.salary.relieving_letter.name}`
+          documentUrls.relieving_letter_url = await uploadFile(documents.salary.relieving_letter, path)
+        }
+
         // Upload salary slips
         const salarySlipUrls: string[] = []
         for (let i = 0; i < documents.salary.salary_slips.length; i++) {
@@ -373,7 +378,7 @@ export default function InternshipForm() {
 
       // Convert empty date strings to null for proper database handling
       const processedData = { ...data }
-      
+
       // Handle date fields - convert empty strings to null
       if (!processedData.date_of_joining || processedData.date_of_joining === '') {
         processedData.date_of_joining = undefined
@@ -393,7 +398,7 @@ export default function InternshipForm() {
       }
 
       const { data: insertedData, error } = await supabase.from("internship_forms").insert([formData]).select()
-      
+
       if (error) {
         console.error("Supabase error:", error)
         setSaveMessage(`Database error: ${error.message}`)
@@ -417,7 +422,7 @@ export default function InternshipForm() {
             try {
               const { blob, filename } = await generateFormPDF(processedData, recordId.toString())
               const pdfUrl = await uploadPDFToSupabase(blob, filename)
-              
+
               if (pdfUrl) {
                 // Update the database record with PDF URL
                 await supabase

@@ -21,7 +21,7 @@ export function WorkExperienceSection({ form }: WorkExperienceSectionProps) {
     const currentExperience = form.getValues("work_experience") || []
     form.setValue("work_experience", [
       ...currentExperience,
-      { organization: "", type: "", duration: "", designation: "", job_profile: "" },
+      { organization: "", type: "", start_date: "", end_date: "", duration: "", designation: "", job_profile: "" },
     ])
   }
 
@@ -83,11 +83,16 @@ export function WorkExperienceSection({ form }: WorkExperienceSectionProps) {
                   key={index}
                   className="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl border border-gray-200 dark:border-gray-600"
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                     <FloatingInput
                       label="Organization"
                       value={experience.organization}
                       onChange={(e) => updateExperience(index, "organization", e.target.value)}
+                    />
+                    <FloatingInput
+                      label="Designation"
+                      value={experience.designation}
+                      onChange={(e) => updateExperience(index, "designation", e.target.value)}
                     />
                     <FloatingInput
                       label="Type"
@@ -95,14 +100,21 @@ export function WorkExperienceSection({ form }: WorkExperienceSectionProps) {
                       onChange={(e) => updateExperience(index, "type", e.target.value)}
                     />
                     <FloatingInput
+                      label="Start Date"
+                      type="date"
+                      value={experience.start_date}
+                      onChange={(e) => updateExperience(index, "start_date", e.target.value)}
+                    />
+                    <FloatingInput
+                      label="End Date"
+                      type="date"
+                      value={experience.end_date}
+                      onChange={(e) => updateExperience(index, "end_date", e.target.value)}
+                    />
+                    <FloatingInput
                       label="Duration"
                       value={experience.duration}
                       onChange={(e) => updateExperience(index, "duration", e.target.value)}
-                    />
-                    <FloatingInput
-                      label="Designation"
-                      value={experience.designation}
-                      onChange={(e) => updateExperience(index, "designation", e.target.value)}
                     />
                   </div>
                   <div className="mb-4">

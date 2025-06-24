@@ -4,6 +4,8 @@ import type { UseFormReturn } from "react-hook-form"
 import { Plus, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { FloatingInput } from "@/components/ui/floating-input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Label } from "@/components/ui/label"
 
 interface AcademicSectionProps {
   form: UseFormReturn<any>
@@ -16,7 +18,7 @@ export function AcademicSection({ form }: AcademicSectionProps) {
     const currentQualifications = form.getValues("academic_qualifications") || []
     form.setValue("academic_qualifications", [
       ...currentQualifications,
-      { degree: "", university: "", passing_year: "", percentage: "" },
+      { degree: "", university: "", mode_of_study: "", passing_year: "", percentage: "" },
     ])
   }
 
@@ -60,7 +62,7 @@ export function AcademicSection({ form }: AcademicSectionProps) {
               key={index}
               className="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl border border-gray-200 dark:border-gray-600"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <FloatingInput
                   label="Degree"
                   value={qualification.degree}
@@ -71,6 +73,22 @@ export function AcademicSection({ form }: AcademicSectionProps) {
                   value={qualification.university}
                   onChange={(e) => updateQualification(index, "university", e.target.value)}
                 />
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Mode of Study</Label>
+                  <Select 
+                    value={qualification.mode_of_study} 
+                    onValueChange={(value) => updateQualification(index, "mode_of_study", value)}
+                  >
+                    <SelectTrigger className="h-12 rounded-xl">
+                      <SelectValue placeholder="Select mode" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="full_time">Full Time</SelectItem>
+                      <SelectItem value="part_time">Part Time</SelectItem>
+                      <SelectItem value="distance_learning">Distance Learning</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <FloatingInput
                   label="Passing Year"
                   value={qualification.passing_year}

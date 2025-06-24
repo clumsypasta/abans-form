@@ -98,27 +98,15 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
           error={form.formState.errors.father_husband_name?.message}
         />
         <FloatingInput 
-          label="Department" 
-          placeholder="Enter department" 
-          {...form.register("department")}
-          error={form.formState.errors.department?.message}
-        />
-      </div>
-
-      {/* Dates and Location */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <FloatingInput 
-          label="Date of Joining" 
-          type="date" 
-          {...form.register("date_of_joining")}
-          error={form.formState.errors.date_of_joining?.message}
-        />
-        <FloatingInput 
           label="Place/Location" 
           placeholder="Enter location" 
           {...form.register("place_location")}
           error={form.formState.errors.place_location?.message}
         />
+      </div>
+
+      {/* Date of Birth */}
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
         <FloatingInput 
           label="Date of Birth" 
           type="date" 
@@ -156,7 +144,20 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
         <FloatingInput
           label="Mobile Number"
           placeholder="Enter 10-digit mobile number"
-          {...form.register("phone_mobile")}
+          {...form.register("phone_mobile", {
+            pattern: {
+              value: /^[0-9]{10}$/,
+              message: "Mobile number must be exactly 10 digits"
+            },
+            onChange: (e) => {
+              const value = e.target.value.replace(/\D/g, '').slice(0, 10)
+              e.target.value = value
+              form.setValue("phone_mobile", value)
+              if (value.length === 10) {
+                form.clearErrors("phone_mobile")
+              }
+            }
+          })}
           error={form.formState.errors.phone_mobile?.message}
         />
       </div>
@@ -214,7 +215,18 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
           label="Personal Email"
           type="email"
           placeholder="Enter complete email address"
-          {...form.register("personal_email")}
+          {...form.register("personal_email", {
+            pattern: {
+              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+              message: "Please enter a valid email address"
+            },
+            onChange: (e) => {
+              const value = e.target.value
+              if (value && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                form.clearErrors("personal_email")
+              }
+            }
+          })}
           error={form.formState.errors.personal_email?.message}
         />
         <FloatingInput 
@@ -231,35 +243,98 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
         />
       </div>
 
-      {/* Emergency Contact */}
+      {/* Emergency Contacts */}
       <div className="border-t border-gray-200 dark:border-gray-700 pt-8">
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Emergency Contact</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FloatingInput
-            label="Name"
-            placeholder="Enter emergency contact name"
-            {...form.register("emergency_contact_name")}
-            error={form.formState.errors.emergency_contact_name?.message}
-          />
-          <FloatingInput 
-            label="Phone" 
-            placeholder="Enter 10-digit phone number" 
-            {...form.register("emergency_contact_phone")}
-            error={form.formState.errors.emergency_contact_phone?.message}
-          />
-          <FloatingInput
-            label="Relationship"
-            placeholder="Enter relationship"
-            {...form.register("emergency_contact_relationship")}
-            error={form.formState.errors.emergency_contact_relationship?.message}
-          />
-          <FloatingTextarea
-            label="Address"
-            placeholder="Enter emergency contact address"
-            {...form.register("emergency_contact_address")}
-            error={form.formState.errors.emergency_contact_address?.message}
-            rows={2}
-          />
+        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Emergency Contacts</h3>
+        
+        {/* Emergency Contact 1 (Required) */}
+        <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl mb-6">
+          <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Emergency Contact 1 (Required)</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FloatingInput
+              label="Name"
+              placeholder="Enter emergency contact name"
+              {...form.register("emergency_contact_1_name")}
+              error={form.formState.errors.emergency_contact_1_name?.message}
+            />
+            <FloatingInput 
+              label="Phone" 
+              placeholder="Enter 10-digit phone number" 
+              {...form.register("emergency_contact_1_phone", {
+                pattern: {
+                  value: /^[0-9]{10}$/,
+                  message: "Phone number must be exactly 10 digits"
+                },
+                onChange: (e) => {
+                  const value = e.target.value.replace(/\D/g, '').slice(0, 10)
+                  e.target.value = value
+                  form.setValue("emergency_contact_1_phone", value)
+                  if (value.length === 10) {
+                    form.clearErrors("emergency_contact_1_phone")
+                  }
+                }
+              })}
+              error={form.formState.errors.emergency_contact_1_phone?.message}
+            />
+            <FloatingInput
+              label="Relationship"
+              placeholder="Enter relationship"
+              {...form.register("emergency_contact_1_relationship")}
+              error={form.formState.errors.emergency_contact_1_relationship?.message}
+            />
+            <FloatingTextarea
+              label="Address"
+              placeholder="Enter emergency contact address"
+              {...form.register("emergency_contact_1_address")}
+              error={form.formState.errors.emergency_contact_1_address?.message}
+              rows={2}
+            />
+          </div>
+        </div>
+
+        {/* Emergency Contact 2 (Optional) */}
+        <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl">
+          <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Emergency Contact 2 (Optional)</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FloatingInput
+              label="Name"
+              placeholder="Enter emergency contact name"
+              {...form.register("emergency_contact_2_name")}
+              error={form.formState.errors.emergency_contact_2_name?.message}
+            />
+            <FloatingInput 
+              label="Phone" 
+              placeholder="Enter 10-digit phone number" 
+              {...form.register("emergency_contact_2_phone", {
+                pattern: {
+                  value: /^[0-9]{10}$/,
+                  message: "Phone number must be exactly 10 digits"
+                },
+                onChange: (e) => {
+                  const value = e.target.value.replace(/\D/g, '').slice(0, 10)
+                  e.target.value = value
+                  form.setValue("emergency_contact_2_phone", value)
+                  if (value.length === 10) {
+                    form.clearErrors("emergency_contact_2_phone")
+                  }
+                }
+              })}
+              error={form.formState.errors.emergency_contact_2_phone?.message}
+            />
+            <FloatingInput
+              label="Relationship"
+              placeholder="Enter relationship"
+              {...form.register("emergency_contact_2_relationship")}
+              error={form.formState.errors.emergency_contact_2_relationship?.message}
+            />
+            <FloatingTextarea
+              label="Address"
+              placeholder="Enter emergency contact address"
+              {...form.register("emergency_contact_2_address")}
+              error={form.formState.errors.emergency_contact_2_address?.message}
+              rows={2}
+            />
+          </div>
         </div>
       </div>
     </div>

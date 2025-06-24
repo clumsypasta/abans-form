@@ -16,7 +16,7 @@ export function FamilySection({ form }: FamilySectionProps) {
     const currentDependants = form.getValues("family_dependants") || []
     form.setValue("family_dependants", [
       ...currentDependants,
-      { name: "", relationship: "", mobile: "", occupation: "" },
+      { name: "", relationship: "", date_of_birth: "", mobile: "", occupation: "" },
     ])
   }
 
@@ -56,7 +56,7 @@ export function FamilySection({ form }: FamilySectionProps) {
               key={index}
               className="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl border border-gray-200 dark:border-gray-600"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <FloatingInput
                   label="Name"
                   value={dependant.name}
@@ -66,6 +66,12 @@ export function FamilySection({ form }: FamilySectionProps) {
                   label="Relationship"
                   value={dependant.relationship}
                   onChange={(e) => updateDependant(index, "relationship", e.target.value)}
+                />
+                <FloatingInput
+                  label="Date of Birth"
+                  type="date"
+                  value={dependant.date_of_birth}
+                  onChange={(e) => updateDependant(index, "date_of_birth", e.target.value)}
                 />
                 <FloatingInput
                   label="Mobile"

@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState } from "react"
@@ -36,7 +35,7 @@ export interface DocumentFiles {
 
 export function DocumentsSection({ form, documents, setDocuments }: DocumentsSectionProps) {
   const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({})
-  
+
   // File size limit: 5MB per file
   const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB in bytes
   const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg']
@@ -58,7 +57,7 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
   ) => {
     const error = validateFile(file)
     const errorKey = `${category}.${field}`
-    
+
     if (error) {
       setUploadErrors(prev => ({ ...prev, [errorKey]: error }))
       return
@@ -98,8 +97,8 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
       return
     }
 
-    if (validFiles.length > 6) {
-      setUploadErrors(prev => ({ ...prev, 'salary.salary_slips': 'Maximum 6 salary slips allowed' }))
+    if (validFiles.length > 3) {
+      setUploadErrors(prev => ({ ...prev, 'salary.salary_slips': 'Maximum 3 salary slips allowed' }))
       return
     }
 
@@ -126,7 +125,7 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
         [field]: field === 'salary_slips' ? [] : null
       }
     }))
-    
+
     const errorKey = `${category}.${field}`
     setUploadErrors(prev => {
       const newErrors = { ...prev }
@@ -160,7 +159,7 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
         <h4 className="font-medium text-gray-900 dark:text-white">
           {title} {required && <span className="text-red-500">*</span>}
         </h4>
-        
+
         {!file ? (
           <div>
             <input
@@ -202,7 +201,7 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
             </p>
           </div>
         )}
-        
+
         {uploadErrors[errorKey] && (
           <div className="flex items-center gap-1 text-red-500 text-xs">
             <AlertCircle className="w-3 h-3" />
@@ -335,7 +334,7 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
               <h4 className="font-medium text-gray-900 dark:text-white">
                 Salary Slips (Last 6 months)
               </h4>
-              
+
               {documents.salary.salary_slips.length === 0 ? (
                 <div>
                   <input
@@ -395,7 +394,7 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
                   </Button>
                 </div>
               )}
-              
+
               {uploadErrors['salary.salary_slips'] && (
                 <div className="flex items-center gap-1 text-red-500 text-xs">
                   <AlertCircle className="w-3 h-3" />
