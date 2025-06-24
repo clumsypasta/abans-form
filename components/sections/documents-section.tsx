@@ -30,22 +30,23 @@ export interface DocumentFiles {
     salary_slips: File[]
     increment_letter: File | null
     offer_letter: File | null
+    relieving_letter: File | null
   }
 }
 
 export function DocumentsSection({ form, documents, setDocuments }: DocumentsSectionProps) {
   const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({})
 
-  // File size limit: 5MB per file
-  const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB in bytes
-  const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg']
+  // File size limit: 2MB per file
+  const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2MB in bytes
+  const ALLOWED_TYPES = ['image/jpeg', 'image/jpg']
 
   const validateFile = (file: File): string | null => {
     if (file.size > MAX_FILE_SIZE) {
-      return "File size must be less than 5MB"
+      return "File size must be less than 2MB"
     }
     if (!ALLOWED_TYPES.includes(file.type)) {
-      return "Only PDF, JPEG, PNG files are allowed"
+      return "Only JPEG files are allowed"
     }
     return null
   }
@@ -140,7 +141,7 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
     onUpload, 
     onRemove, 
     required = false,
-    accept = "image/*,.pdf",
+    accept = "image/jpeg",
     errorKey
   }: {
     title: string
@@ -151,13 +152,13 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
     accept?: string
     errorKey: string
   }) => (
-    <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
-      <div className="space-y-2">
+    <div className="border-2 border-dashed border-blue-200 dark:border-blue-800 rounded-xl p-6 text-center hover:border-blue-300 dark:hover:border-blue-700 transition-colors bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/20">
+      <div className="space-y-3">
         <div className="flex items-center justify-center">
-          <FileText className="w-8 h-8 text-gray-400" />
+          <FileText className="w-10 h-10 text-blue-500 dark:text-blue-400" />
         </div>
-        <h4 className="font-medium text-gray-900 dark:text-white">
-          {title} {required && <span className="text-red-500">*</span>}
+        <h4 className="font-semibold text-gray-900 dark:text-white text-sm">
+          {title}
         </h4>
 
         {!file ? (
@@ -174,14 +175,14 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
             />
             <label
               htmlFor={`upload-${errorKey}`}
-              className="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer transition-colors"
+              className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full hover:from-blue-600 hover:to-blue-700 cursor-pointer transition-all duration-200 shadow-md hover:shadow-lg font-medium text-sm"
             >
               <Upload className="w-4 h-4 mr-2" />
-              Upload File
+              Choose File
             </label>
           </div>
         ) : (
-          <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 p-4 rounded-xl border border-green-200 dark:border-green-700">
             <div className="flex items-center justify-between">
               <span className="text-sm text-green-700 dark:text-green-300 font-medium truncate">
                 {file.name}
@@ -191,7 +192,7 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
                 variant="ghost"
                 size="sm"
                 onClick={onRemove}
-                className="text-red-500 hover:text-red-700 p-1"
+                className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 p-1 rounded-full"
               >
                 <X className="w-4 h-4" />
               </Button>
@@ -203,14 +204,14 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
         )}
 
         {uploadErrors[errorKey] && (
-          <div className="flex items-center gap-1 text-red-500 text-xs">
+          <div className="flex items-center justify-center gap-1 text-red-500 text-xs bg-red-50 dark:bg-red-900/20 p-2 rounded-lg">
             <AlertCircle className="w-3 h-3" />
             {uploadErrors[errorKey]}
           </div>
         )}
       </div>
-      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-        Max 5MB • PDF, JPEG, PNG only
+      <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 font-medium">
+        Max 2MB • JPEG only
       </p>
     </div>
   )
@@ -224,9 +225,10 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
       </div>
 
       {/* KYC Documents */}
-      <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
-          KYC Documents <span className="text-red-500">*</span>
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 p-6 rounded-2xl border border-blue-200 dark:border-blue-800">
+        <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100 mb-6 flex items-center">
+          <FileText className="w-6 h-6 mr-2" />
+          KYC Documents
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FileUploadCard
@@ -249,9 +251,10 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
       </div>
 
       {/* Education Documents */}
-      <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
-          Education Documents <span className="text-red-500">*</span>
+      <div className="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 p-6 rounded-2xl border border-emerald-200 dark:border-emerald-800">
+        <h3 className="text-xl font-bold text-emerald-900 dark:text-emerald-100 mb-6 flex items-center">
+          <FileText className="w-6 h-6 mr-2" />
+          Education Documents
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FileUploadCard
@@ -320,26 +323,27 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
       </div>
 
       {/* Salary/Employment Documents */}
-      <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
+      <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 p-6 rounded-2xl border border-purple-200 dark:border-purple-800">
+        <h3 className="text-xl font-bold text-purple-900 dark:text-purple-100 mb-6 flex items-center">
+          <FileText className="w-6 h-6 mr-2" />
           Employment Documents
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Salary Slips - Multiple Files */}
-          <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
-            <div className="space-y-2">
+          <div className="border-2 border-dashed border-blue-200 dark:border-blue-800 rounded-xl p-6 text-center hover:border-blue-300 dark:hover:border-blue-700 transition-colors bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/20">
+            <div className="space-y-3">
               <div className="flex items-center justify-center">
-                <FileText className="w-8 h-8 text-gray-400" />
+                <FileText className="w-10 h-10 text-blue-500 dark:text-blue-400" />
               </div>
-              <h4 className="font-medium text-gray-900 dark:text-white">
-                Salary Slips (Last 6 months)
+              <h4 className="font-semibold text-gray-900 dark:text-white text-sm">
+                Salary Slips (Last 3 months)
               </h4>
 
               {documents.salary.salary_slips.length === 0 ? (
                 <div>
                   <input
                     type="file"
-                    accept="image/*,.pdf"
+                    accept="image/jpeg"
                     multiple
                     onChange={(e) => {
                       if (e.target.files) handleSalarySlipsUpload(e.target.files)
@@ -349,16 +353,16 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
                   />
                   <label
                     htmlFor="upload-salary-slips"
-                    className="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer transition-colors"
+                    className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full hover:from-blue-600 hover:to-blue-700 cursor-pointer transition-all duration-200 shadow-md hover:shadow-lg font-medium text-sm"
                   >
                     <Upload className="w-4 h-4 mr-2" />
-                    Upload Files
+                    Choose Files
                   </label>
                 </div>
               ) : (
                 <div className="space-y-2">
                   {documents.salary.salary_slips.map((file, index) => (
-                    <div key={index} className="bg-green-50 dark:bg-green-900/20 p-2 rounded-lg">
+                    <div key={index} className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 p-3 rounded-xl border border-green-200 dark:border-green-700">
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-green-700 dark:text-green-300 font-medium truncate">
                           {file.name}
@@ -376,11 +380,14 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
                               }
                             }))
                           }}
-                          className="text-red-500 hover:text-red-700 p-1"
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 p-1 rounded-full"
                         >
                           <X className="w-3 h-3" />
                         </Button>
                       </div>
+                      <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                        {(file.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
                     </div>
                   ))}
                   <Button
@@ -388,7 +395,7 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
                     variant="outline"
                     size="sm"
                     onClick={() => removeFile('salary', 'salary_slips')}
-                    className="w-full"
+                    className="w-full mt-2 rounded-full"
                   >
                     Remove All
                   </Button>
@@ -396,14 +403,14 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
               )}
 
               {uploadErrors['salary.salary_slips'] && (
-                <div className="flex items-center gap-1 text-red-500 text-xs">
+                <div className="flex items-center justify-center gap-1 text-red-500 text-xs bg-red-50 dark:bg-red-900/20 p-2 rounded-lg">
                   <AlertCircle className="w-3 h-3" />
                   {uploadErrors['salary.salary_slips']}
                 </div>
               )}
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              Max 6 files • 5MB each • PDF, JPEG, PNG only
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 font-medium">
+              Max 3 files • 2MB each • JPEG only
             </p>
           </div>
 
@@ -420,6 +427,13 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
             onUpload={(file) => handleFileUpload(file, 'salary', 'offer_letter')}
             onRemove={() => removeFile('salary', 'offer_letter')}
             errorKey="salary.offer_letter"
+          />
+          <FileUploadCard
+            title="Relieving Letter"
+            file={documents.salary.relieving_letter}
+            onUpload={(file) => handleFileUpload(file, 'salary', 'relieving_letter')}
+            onRemove={() => removeFile('salary', 'relieving_letter')}
+            errorKey="salary.relieving_letter"
           />
         </div>
       </div>
