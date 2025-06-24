@@ -443,7 +443,56 @@ export const generateFormPDF = async (formData: FormDataForPDF, formId?: string)
   declarationLines.forEach((line: string, index: number) => {
     doc.text(line, 20, currentY + (index * 5))
   })
-  currentY += declarationLines.length * 5 + 15
+  currentY += declarationLines.length * 5 + 20
+
+  // Candidate Signature Box
+  currentY = checkPageBreak(doc, currentY, 40)
+  doc.setFontSize(10)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(40, 40, 40)
+  doc.text('Candidate Signature:', 20, currentY)
+  
+  // Draw signature box
+  doc.setDrawColor(0, 0, 0)
+  doc.setLineWidth(0.5)
+  doc.rect(20, currentY + 5, 80, 20) // signature box
+  
+  // Date line
+  doc.text('Date: _______________', 120, currentY + 15)
+  
+  currentY += 35
+
+  // FOR HR USE ONLY Section
+  currentY = checkPageBreak(doc, currentY, 80)
+  currentY = addSectionHeader(doc, 'FOR HR USE ONLY', 20, currentY)
+  
+  const hrData = [
+    { label: 'Employee Name', value: `${formData.first_name || ''} ${formData.middle_name || ''} ${formData.last_name || ''}`.trim() },
+    { label: 'Date of Joining', value: '_________________________' },
+    { label: 'Employee Code', value: '_________________________' },
+    { label: 'Company Name', value: '_________________________' }
+  ]
+  
+  currentY = addTable(doc, hrData, 20, currentY)
+  currentY += 15
+
+  // HR Signature boxes
+  currentY = checkPageBreak(doc, currentY, 40)
+  
+  // Left side - Candidate Signature
+  doc.setFontSize(10)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(40, 40, 40)
+  doc.text('Candidate Signature:', 20, currentY)
+  doc.rect(20, currentY + 5, 70, 20) // signature box
+  doc.text('Date: ___________', 20, currentY + 30)
+  
+  // Right side - HR Head Signature  
+  doc.text('HR Head Signature:', 110, currentY)
+  doc.rect(110, currentY + 5, 70, 20) // signature box
+  doc.text('Date: ___________', 110, currentY + 30)
+  
+  currentY += 45
 
   // Footer
   currentY = checkPageBreak(doc, currentY, 25)
