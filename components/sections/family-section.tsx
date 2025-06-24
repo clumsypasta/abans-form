@@ -1,4 +1,3 @@
-
 "use client"
 
 import type { UseFormReturn } from "react-hook-form"
@@ -60,28 +59,28 @@ export function FamilySection({ form }: FamilySectionProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <FloatingInput
                   label="Name"
-                  value={dependant.name || ""}
+                  value={dependant.name}
                   onChange={(e) => updateDependant(index, "name", e.target.value)}
                 />
                 <FloatingInput
                   label="Relationship"
-                  value={dependant.relationship || ""}
+                  value={dependant.relationship}
                   onChange={(e) => updateDependant(index, "relationship", e.target.value)}
                 />
                 <FloatingInput
                   label="Date of Birth"
                   type="date"
-                  value={dependant.date_of_birth || ""}
+                  value={dependant.date_of_birth}
                   onChange={(e) => updateDependant(index, "date_of_birth", e.target.value)}
                 />
                 <FloatingInput
                   label="Mobile"
-                  value={dependant.mobile || ""}
+                  value={dependant.mobile}
                   onChange={(e) => updateDependant(index, "mobile", e.target.value)}
                 />
                 <FloatingInput
                   label="Occupation"
-                  value={dependant.occupation || ""}
+                  value={dependant.occupation}
                   onChange={(e) => updateDependant(index, "occupation", e.target.value)}
                 />
               </div>
