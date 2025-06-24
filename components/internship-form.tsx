@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronRight, ChevronLeft, Check, Save, Moon, Sun, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -23,133 +21,93 @@ import { DocumentsSection, type DocumentFiles } from "./sections/documents-secti
 import { ReferenceSection } from "./sections/reference-section"
 import { SuccessScreen } from "./success-screen"
 
-const formSchema = z.object({
+type FormData = {
   // Personal Information
-  first_name: z.string().min(1, "First name is required"),
-  middle_name: z.string().min(1, "Middle name is required"),
-  last_name: z.string().min(1, "Last name is required"),
-  father_husband_name: z.string().min(1, "Father/Husband name is required"),
-  department: z.string().min(1, "Department is required"),
-  date_of_joining: z.string().min(1, "Date of joining is required"),
-  place_location: z.string().min(1, "Place/Location is required"),
-  date_of_birth: z.string().min(1, "Date of birth is required"),
-  present_address: z.string().min(1, "Present address is required"),
-  permanent_address: z.string().min(1, "Permanent address is required"),
-  phone_residence: z.string().min(1, "Residence phone is required"),
-  phone_mobile: z.string()
-    .min(10, "Mobile number must be exactly 10 digits")
-    .max(10, "Mobile number must be exactly 10 digits")
-    .regex(/^\d{10}$/, "Mobile number must contain only digits"),
-  marital_status: z.string().min(1, "Marital status is required"),
-  nationality: z.string().min(1, "Nationality is required"),
-  blood_group: z.string().min(1, "Blood group is required"),
-  personal_email: z.string()
-    .min(1, "Email is required")
-    .email("Please enter a valid email address"),
-  uan: z.string().min(1, "UAN is required"),
-  last_pf_no: z.string().min(1, "Last PF number is required"),
+  first_name: string
+  middle_name: string
+  last_name: string
+  father_husband_name: string
+  place_location: string
+  date_of_birth: string
+  present_address: string
+  permanent_address: string
+  phone_residence: string
+  phone_mobile: string
+  marital_status: string
+  nationality: string
+  blood_group: string
+  personal_email: string
+  uan: string
+  last_pf_no: string
 
-  // Emergency Contact
-  emergency_contact_name: z.string().min(1, "Emergency contact name is required"),
-  emergency_contact_address: z.string().min(1, "Emergency contact address is required"),
-  emergency_contact_relationship: z.string().min(1, "Emergency contact relationship is required"),
-  emergency_contact_phone: z.string()
-    .min(10, "Phone number must be exactly 10 digits")
-    .max(10, "Phone number must be exactly 10 digits")
-    .regex(/^\d{10}$/, "Mobile number must contain only digits"),
+  // Emergency Contact 1 (Required)
+  emergency_contact_1_name: string
+  emergency_contact_1_address: string
+  emergency_contact_1_relationship: string
+  emergency_contact_1_phone: string
+
+  // Emergency Contact 2 (Optional)
+  emergency_contact_2_name: string
+  emergency_contact_2_address: string
+  emergency_contact_2_relationship: string
+  emergency_contact_2_phone: string
 
   // Nominee
-  nominee_name: z.string().min(1, "Nominee name is required"),
-  nominee_dob: z.string().min(1, "Nominee date of birth is required"),
-  nominee_mobile: z.string()
-    .min(10, "Mobile number must be exactly 10 digits")
-    .max(10, "Mobile number must be exactly 10 digits")
-    .regex(/^\d{10}$/, "Mobile number must contain only digits"),
-  nominee_relationship: z.string().min(1, "Nominee relationship is required"),
+  nominee_name: string
+  nominee_dob: string
+  nominee_mobile: string
+  nominee_relationship: string
 
   // Complex fields
-  languages_known: z
-    .array(
-      z.object({
-        language: z.string().min(1, "Language is required"),
-        read: z.boolean(),
-        write: z.boolean(),
-        speak: z.boolean(),
-      }),
-    )
-    .min(1, "At least one language is required"),
-  family_dependants: z
-    .array(
-      z.object({
-        name: z.string().min(1, "Name is required"),
-        relationship: z.string().min(1, "Relationship is required"),
-        mobile: z.string()
-          .min(10, "Mobile number must be exactly 10 digits")
-          .max(10, "Mobile number must be exactly 10 digits")
-          .regex(/^\d{10}$/, "Mobile number must contain only digits"),
-        occupation: z.string().min(1, "Occupation is required"),
-      }),
-    )
-    .min(1, "At least one family dependant is required"),
-  academic_qualifications: z
-    .array(
-      z.object({
-        degree: z.string().min(1, "Degree is required"),
-        university: z.string().min(1, "University is required"),
-        passing_year: z.string().min(1, "Passing year is required"),
-        percentage: z.string().min(1, "Percentage is required"),
-      }),
-    )
-    .min(1, "At least one academic qualification is required"),
-  professional_qualifications: z
-    .array(
-      z.object({
-        certification: z.string().min(1, "Certification is required"),
-        institute: z.string().min(1, "Institute is required"),
-        year: z.string().min(1, "Year is required"),
-        percentage: z.string().min(1, "Percentage is required"),
-      }),
-    )
-    .min(1, "At least one professional qualification is required"),
-  is_fresher: z.boolean().default(false),
-  work_experience: z
-    .array(
-      z.object({
-        organization: z.string().min(1, "Organization is required"),
-        type: z.string().min(1, "Type is required"),
-        duration: z.string().min(1, "Duration is required"),
-        designation: z.string().min(1, "Designation is required"),
-        job_profile: z.string().min(1, "Job profile is required"),
-      }),
-    )
-    .refine((data) => data.length > 0, {
-      message: "Work experience is required for non-freshers",
-    }),
+  languages_known: Array<{
+    language: string
+    read: boolean
+    write: boolean
+    speak: boolean
+  }>
+  family_dependants: Array<{
+    name: string
+    relationship: string
+    mobile: string
+    occupation: string
+    dob: string
+  }>
+  academic_qualifications: Array<{
+    degree: string
+    university: string
+    passing_year: string
+    percentage: string
+    mode_of_study: string
+  }>
+  professional_qualifications: Array<{
+    certification: string
+    institute: string
+    year: string
+    percentage: string
+  }>
+  is_fresher: boolean
+  work_experience: Array<{
+    organization: string
+    type: string
+    start_date: string
+    end_date: string
+    designation: string
+    job_profile: string
+  }>
 
   // References
-  references: z
-    .array(
-      z.object({
-        name: z.string().min(1, "Name is required"),
-        designation: z.string().min(1, "Designation is required"),
-        company: z.string().min(1, "Company is required"),
-        address: z.string().min(1, "Address is required"),
-        contact_no: z.string()
-          .min(10, "Contact number must be exactly 10 digits")
-          .max(10, "Contact number must be exactly 10 digits")
-          .regex(/^\d{10}$/, "Contact number must contain only digits"),
-        email: z.string()
-          .min(1, "Email is required")
-          .email("Please enter a valid email address"),
-      }),
-    )
-    .length(2, "Exactly 2 references are required"),
+  references: Array<{
+    name: string
+    designation: string
+    company: string
+    address: string
+    contact_no: string
+    email: string
+  }>
 
   // Agreement
-  agreement_accepted: z.boolean().default(false),
-})
-
-type FormData = z.infer<typeof formSchema>
+  agreement_accepted: boolean
+}
 
 const sections = [
   { id: "personal", title: "Personal Details", description: "Basic personal details" },
@@ -194,12 +152,11 @@ export default function InternshipForm() {
   const { theme, toggleTheme } = useTheme()
 
   const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
     mode: "onSubmit",
     defaultValues: {
       languages_known: [{ language: "", read: false, write: false, speak: false }],
-      family_dependants: [{ name: "", relationship: "", mobile: "", occupation: "" }],
-      academic_qualifications: [{ degree: "", university: "", passing_year: "", percentage: "" }],
+      family_dependants: [{ name: "", relationship: "", mobile: "", occupation: "", dob: "" }],
+      academic_qualifications: [{ degree: "", university: "", passing_year: "", percentage: "", mode_of_study: "" }],
       professional_qualifications: [{ certification: "", institute: "", year: "", percentage: "" }],
       work_experience: [],
       references: [
@@ -261,41 +218,6 @@ export default function InternshipForm() {
   }
 
   const onSubmit = async (data: FormData) => {
-    // Check photo upload requirement
-    if (!photoFile) {
-      setSaveMessage("Photo upload is required")
-      setTimeout(() => setSaveMessage(""), 3000)
-      return
-    }
-
-    // Check required documents
-    const requiredKYC = documents.kyc.aadhar && documents.kyc.pan
-    const requiredEducation = documents.education.ssc_marksheet && 
-                              documents.education.ssc_passing && 
-                              documents.education.hsc_marksheet && 
-                              documents.education.hsc_passing && 
-                              documents.education.graduation_marksheet && 
-                              documents.education.graduation_passing
-
-    if (!requiredKYC) {
-      setSaveMessage("Please upload all required KYC documents")
-      setTimeout(() => setSaveMessage(""), 3000)
-      return
-    }
-
-    if (!requiredEducation) {
-      setSaveMessage("Please upload all required education documents")
-      setTimeout(() => setSaveMessage(""), 3000)
-      return
-    }
-
-    // Only check terms and conditions
-    if (!data.agreement_accepted) {
-      setSaveMessage("Please accept the terms and conditions to submit the form")
-      setTimeout(() => setSaveMessage(""), 3000)
-      return
-    }
-
     setIsSubmitting(true)
     try {
       if (!isSupabaseConfigured()) {
@@ -376,22 +298,8 @@ export default function InternshipForm() {
         return
       }
 
-      // Convert empty date strings to null for proper database handling
-      const processedData = { ...data }
-
-      // Handle date fields - convert empty strings to null
-      if (!processedData.date_of_joining || processedData.date_of_joining === '') {
-        processedData.date_of_joining = undefined
-      }
-      if (!processedData.date_of_birth || processedData.date_of_birth === '') {
-        processedData.date_of_birth = undefined
-      }
-      if (!processedData.nominee_dob || processedData.nominee_dob === '') {
-        processedData.nominee_dob = undefined
-      }
-
       const formData: Partial<InternshipFormData> = {
-        ...processedData,
+        ...data,
         photo_url: photoUrl,
         ...documentUrls,
         sections_completed: Array.from(completedSections).map((i) => sections[i].id),
@@ -407,7 +315,7 @@ export default function InternshipForm() {
       }
 
       // Store form data and ID for PDF generation
-      setSubmittedFormData(processedData)
+      setSubmittedFormData(data)
       let recordId = null
       if (insertedData && insertedData[0]) {
         recordId = insertedData[0].id
@@ -420,7 +328,7 @@ export default function InternshipForm() {
           // Small delay to ensure DOM is ready
           setTimeout(async () => {
             try {
-              const { blob, filename } = await generateFormPDF(processedData, recordId.toString())
+              const { blob, filename } = await generateFormPDF(data, recordId.toString())
               const pdfUrl = await uploadPDFToSupabase(blob, filename)
 
               if (pdfUrl) {
@@ -608,11 +516,6 @@ export default function InternshipForm() {
                       </p>
                     </div>
                   </div>
-                  {form.formState.errors.agreement_accepted && (
-                    <p className="text-red-600 dark:text-red-400 text-sm mt-2">
-                      {form.formState.errors.agreement_accepted.message}
-                    </p>
-                  )}
                 </div>
               )}
 
@@ -654,7 +557,7 @@ export default function InternshipForm() {
                   ) : (
                     <Button
                       type="submit"
-                      disabled={isSubmitting || !form.watch("agreement_accepted")}
+                      disabled={isSubmitting}
                       className="rounded-full px-8 py-3 bg-green-500 hover:bg-green-600 disabled:opacity-50"
                     >
                       {isSubmitting ? (

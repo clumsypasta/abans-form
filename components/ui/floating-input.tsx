@@ -10,7 +10,7 @@ export interface FloatingInputProps extends React.InputHTMLAttributes<HTMLInputE
 }
 
 const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
-  ({ className, label, error, type, placeholder, ...props }, ref) => {
+  ({ className, label, error, type, ...props }, ref) => {
     const [focused, setFocused] = React.useState(false)
     const [hasValue, setHasValue] = React.useState(false)
 
@@ -33,7 +33,7 @@ const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
       }
     }
 
-    // Always float label for date inputs, inputs with placeholders, or when there's content
+    // Always float label for date inputs or when there's content/focus
     const shouldLabelFloat =
       focused ||
       hasValue ||
@@ -41,20 +41,18 @@ const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
       Boolean(props.defaultValue) ||
       type === "date" ||
       type === "time" ||
-      type === "datetime-local" ||
-      Boolean(placeholder)
+      type === "datetime-local"
 
     return (
       <div className="relative">
         <input
           type={type}
           className={cn(
-            "peer w-full px-4 text-base bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-gray-100",
-            shouldLabelFloat ? "pt-6 pb-2" : "py-4",
-            error && "border-red-500 focus:ring-red-500",
+            "peer w-full px-4 py-3 text-base bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-xl transition-all duration-200 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 text-gray-900 dark:text-gray-100",
+            shouldLabelFloat ? "pt-6 pb-2" : "py-3",
+            focused && "border-blue-500 dark:border-blue-400",
             className,
           )}
-          placeholder={shouldLabelFloat && focused ? placeholder : ""}
           onFocus={handleFocus}
           onBlur={handleBlur}
           onChange={handleChange}
@@ -63,15 +61,14 @@ const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
         />
         <label
           className={cn(
-            "absolute left-4 transition-all duration-200 pointer-events-none select-none bg-white dark:bg-gray-800 px-1 rounded",
+            "absolute left-4 transition-all duration-200 pointer-events-none select-none",
             shouldLabelFloat
-              ? "top-0 -translate-y-1/2 text-xs font-medium text-blue-600 dark:text-blue-400 z-10"
+              ? "top-2 text-xs font-medium text-blue-500 dark:text-blue-400"
               : "top-1/2 -translate-y-1/2 text-base text-gray-500 dark:text-gray-400",
           )}
         >
           {label}
         </label>
-        {error && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>}
       </div>
     )
   },
