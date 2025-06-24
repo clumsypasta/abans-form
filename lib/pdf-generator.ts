@@ -445,22 +445,20 @@ export const generateFormPDF = async (formData: FormDataForPDF, formId?: string)
   })
   currentY += declarationLines.length * 5 + 20
 
-  // Candidate Signature Box
+  // Candidate Signature Area
   currentY = checkPageBreak(doc, currentY, 40)
   doc.setFontSize(10)
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(40, 40, 40)
   doc.text('Candidate Signature:', 20, currentY)
   
-  // Draw signature box
-  doc.setDrawColor(0, 0, 0)
-  doc.setLineWidth(0.5)
-  doc.rect(20, currentY + 5, 80, 20) // signature box
+  // Blank space for signature
+  currentY += 25
   
   // Date line
-  doc.text('Date: _______________', 120, currentY + 15)
+  doc.text('Date: _______________', 20, currentY)
   
-  currentY += 35
+  currentY += 20
 
   // FOR HR USE ONLY Section
   currentY = checkPageBreak(doc, currentY, 80)
@@ -476,23 +474,22 @@ export const generateFormPDF = async (formData: FormDataForPDF, formId?: string)
   currentY = addTable(doc, hrData, 20, currentY)
   currentY += 15
 
-  // HR Signature boxes
+  // HR Signatures - swapped positions
   currentY = checkPageBreak(doc, currentY, 40)
   
-  // Left side - Candidate Signature
+  // Left side - HR Head Signature
   doc.setFontSize(10)
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(40, 40, 40)
-  doc.text('Candidate Signature:', 20, currentY)
-  doc.rect(20, currentY + 5, 70, 20) // signature box
-  doc.text('Date: ___________', 20, currentY + 30)
+  doc.text('HR Head Signature:', 20, currentY)
+  currentY += 25
+  doc.text('Date: ___________', 20, currentY)
   
-  // Right side - HR Head Signature  
-  doc.text('HR Head Signature:', 110, currentY)
-  doc.rect(110, currentY + 5, 70, 20) // signature box
-  doc.text('Date: ___________', 110, currentY + 30)
+  // Right side - Candidate Signature  
+  doc.text('Candidate Signature:', 110, currentY - 25)
+  doc.text('Date: ___________', 110, currentY)
   
-  currentY += 45
+  currentY += 20
 
   // Footer
   currentY = checkPageBreak(doc, currentY, 25)
