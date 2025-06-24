@@ -49,8 +49,8 @@ const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
         <input
           type={type}
           className={cn(
-            "peer w-full h-12 px-4 text-base bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-gray-100",
-            shouldLabelFloat ? "pt-6 pb-2" : "py-3",
+            "peer w-full px-4 text-base bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-gray-100",
+            shouldLabelFloat ? "pt-6 pb-2" : "py-4",
             error && "border-red-500 focus:ring-red-500",
             className,
           )}

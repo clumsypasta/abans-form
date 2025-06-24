@@ -5,21 +5,17 @@ import { Button } from "@/components/ui/button"
 import { FloatingInput } from "@/components/ui/floating-input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface LanguagesSectionProps {
   form: UseFormReturn<any>
 }
-
-const languageOptions = ["English", "Spanish", "French", "German", "Mandarin", "Hindi"]
-const proficiencyLevels = ["Beginner", "Intermediate", "Advanced", "Fluent"]
 
 export function LanguagesSection({ form }: LanguagesSectionProps) {
   const languages = form.watch("languages_known") || []
 
   const addLanguage = () => {
     const currentLanguages = form.getValues("languages_known") || []
-    form.setValue("languages_known", [...currentLanguages, { language: "", read: "Beginner", write: "Beginner", speak: "Beginner" }])
+    form.setValue("languages_known", [...currentLanguages, { language: "", read: false, write: false, speak: false }])
   }
 
   const removeLanguage = (index: number) => {
@@ -59,77 +55,43 @@ export function LanguagesSection({ form }: LanguagesSectionProps) {
               className="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl border border-gray-200 dark:border-gray-600"
             >
               <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-                <div className="space-y-3">
-                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Language</Label>
-                  <Select
+                <div className="md:col-span-2">
+                  <FloatingInput
+                    label="Language"
+                    placeholder="Enter language name"
                     value={language.language}
-                    onValueChange={(value) => updateLanguage(index, "language", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select language" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {languageOptions.map((lang) => (
-                        <SelectItem key={lang} value={lang}>
-                          {lang}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    onChange={(e) => updateLanguage(index, "language", e.target.value)}
+                  />
                 </div>
-                <div className="space-y-3">
-                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Speak</Label>
-                  <Select
-                    value={language.speak}
-                    onValueChange={(value) => updateLanguage(index, "speak", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {proficiencyLevels.map((level) => (
-                        <SelectItem key={level} value={level}>
-                          {level}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`read-${index}`}
+                    checked={language.read}
+                    onCheckedChange={(checked) => updateLanguage(index, "read", checked)}
+                  />
+                  <Label htmlFor={`read-${index}`} className="text-gray-700 dark:text-gray-300">
+                    Read
+                  </Label>
                 </div>
-                <div className="space-y-3">
-                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Read</Label>
-                  <Select
-                    value={language.read}
-                    onValueChange={(value) => updateLanguage(index, "read", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {proficiencyLevels.map((level) => (
-                        <SelectItem key={level} value={level}>
-                          {level}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`write-${index}`}
+                    checked={language.write}
+                    onCheckedChange={(checked) => updateLanguage(index, "write", checked)}
+                  />
+                  <Label htmlFor={`write-${index}`} className="text-gray-700 dark:text-gray-300">
+                    Write
+                  </Label>
                 </div>
-                <div className="space-y-3">
-                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Write</Label>
-                  <Select
-                    value={language.write}
-                    onValueChange={(value) => updateLanguage(index, "write", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {proficiencyLevels.map((level) => (
-                        <SelectItem key={level} value={level}>
-                          {level}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`speak-${index}`}
+                    checked={language.speak}
+                    onCheckedChange={(checked) => updateLanguage(index, "speak", checked)}
+                  />
+                  <Label htmlFor={`speak-${index}`} className="text-gray-700 dark:text-gray-300">
+                    Speak
+                  </Label>
                 </div>
               </div>
               <div className="mt-4 flex justify-end">

@@ -190,7 +190,7 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
         <div className="space-y-3">
           <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Blood Group *</Label>
           <Select value={form.watch("blood_group")} onValueChange={(value) => form.setValue("blood_group", value)}>
-            <SelectTrigger>
+            <SelectTrigger className="h-12 rounded-xl">
               <SelectValue placeholder="Select blood group" />
             </SelectTrigger>
             <SelectContent>
