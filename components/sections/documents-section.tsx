@@ -41,36 +41,13 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
   const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2MB in bytes
   const ALLOWED_TYPES = ['image/jpeg', 'image/jpg']
 
-  const validateFile = (file: File): string | null => {
-    if (file.size > MAX_FILE_SIZE) {
-      return "File size must be less than 2MB"
-    }
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      return "Only JPEG files are allowed"
-    }
-    return null
-  }
+  
 
   const handleFileUpload = (
     file: File,
     category: 'kyc' | 'education' | 'salary',
     field: string
   ) => {
-    const error = validateFile(file)
-    const errorKey = `${category}.${field}`
-
-    if (error) {
-      setUploadErrors(prev => ({ ...prev, [errorKey]: error }))
-      return
-    }
-
-    // Clear any previous error
-    setUploadErrors(prev => {
-      const newErrors = { ...prev }
-      delete newErrors[errorKey]
-      return newErrors
-    })
-
     setDocuments(prev => ({
       ...prev,
       [category]: {
@@ -85,28 +62,7 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
     const errors: string[] = []
 
     Array.from(files).forEach((file, index) => {
-      const error = validateFile(file)
-      if (error) {
-        errors.push(`File ${index + 1}: ${error}`)
-      } else {
-        validFiles.push(file)
-      }
-    })
-
-    if (errors.length > 0) {
-      setUploadErrors(prev => ({ ...prev, 'salary.salary_slips': errors.join('; ') }))
-      return
-    }
-
-    if (validFiles.length > 3) {
-      setUploadErrors(prev => ({ ...prev, 'salary.salary_slips': 'Maximum 3 salary slips allowed' }))
-      return
-    }
-
-    setUploadErrors(prev => {
-      const newErrors = { ...prev }
-      delete newErrors['salary.salary_slips']
-      return newErrors
+      validFiles.push(file)
     })
 
     setDocuments(prev => ({
@@ -203,12 +159,12 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
           </div>
         )}
 
-        {uploadErrors[errorKey] && (
+        {/* {uploadErrors[errorKey] && (
           <div className="flex items-center justify-center gap-1 text-red-500 text-xs bg-red-50 dark:bg-red-900/20 p-2 rounded-lg">
             <AlertCircle className="w-3 h-3" />
             {uploadErrors[errorKey]}
           </div>
-        )}
+        )} */}
       </div>
       <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 font-medium">
         Max 2MB • JPEG only
@@ -402,12 +358,12 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
                 </div>
               )}
 
-              {uploadErrors['salary.salary_slips'] && (
+              {/* {uploadErrors['salary.salary_slips'] && (
                 <div className="flex items-center justify-center gap-1 text-red-500 text-xs bg-red-50 dark:bg-red-900/20 p-2 rounded-lg">
                   <AlertCircle className="w-3 h-3" />
                   {uploadErrors['salary.salary_slips']}
                 </div>
-              )}
+              )} */}
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 font-medium">
               Max 3 files • 2MB each • JPEG only
@@ -440,3 +396,4 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
     </div>
   )
 }
+```

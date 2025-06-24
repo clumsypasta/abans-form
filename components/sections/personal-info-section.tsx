@@ -144,20 +144,7 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
         <FloatingInput
           label="Mobile Number"
           placeholder="Enter 10-digit mobile number"
-          {...form.register("phone_mobile", {
-            pattern: {
-              value: /^[0-9]{10}$/,
-              message: "Mobile number must be exactly 10 digits"
-            },
-            onChange: (e) => {
-              const value = e.target.value.replace(/\D/g, '').slice(0, 10)
-              e.target.value = value
-              form.setValue("phone_mobile", value)
-              if (value.length === 10) {
-                form.clearErrors("phone_mobile")
-              }
-            }
-          })}
+          {...form.register("phone_mobile")}
           error={form.formState.errors.phone_mobile?.message}
         />
       </div>
@@ -215,18 +202,7 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
           label="Personal Email"
           type="email"
           placeholder="Enter complete email address"
-          {...form.register("personal_email", {
-            pattern: {
-              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-              message: "Please enter a valid email address"
-            },
-            onChange: (e) => {
-              const value = e.target.value
-              if (value && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-                form.clearErrors("personal_email")
-              }
-            }
-          })}
+          {...form.register("personal_email")}
           error={form.formState.errors.personal_email?.message}
         />
         <FloatingInput 
@@ -246,7 +222,7 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
       {/* Emergency Contacts */}
       <div className="border-t border-gray-200 dark:border-gray-700 pt-8">
         <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Emergency Contacts</h3>
-        
+
         {/* Emergency Contact 1 (Required) */}
         <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl mb-6">
           <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Emergency Contact 1 (Required)</h4>
@@ -260,20 +236,7 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
             <FloatingInput 
               label="Phone" 
               placeholder="Enter 10-digit phone number" 
-              {...form.register("emergency_contact_1_phone", {
-                pattern: {
-                  value: /^[0-9]{10}$/,
-                  message: "Phone number must be exactly 10 digits"
-                },
-                onChange: (e) => {
-                  const value = e.target.value.replace(/\D/g, '').slice(0, 10)
-                  e.target.value = value
-                  form.setValue("emergency_contact_1_phone", value)
-                  if (value.length === 10) {
-                    form.clearErrors("emergency_contact_1_phone")
-                  }
-                }
-              })}
+              {...form.register("emergency_contact_1_phone")}
               error={form.formState.errors.emergency_contact_1_phone?.message}
             />
             <FloatingInput
@@ -305,20 +268,7 @@ export function PersonalInfoSection({ form, photoFile, setPhotoFile }: PersonalI
             <FloatingInput 
               label="Phone" 
               placeholder="Enter 10-digit phone number" 
-              {...form.register("emergency_contact_2_phone", {
-                pattern: {
-                  value: /^[0-9]{10}$/,
-                  message: "Phone number must be exactly 10 digits"
-                },
-                onChange: (e) => {
-                  const value = e.target.value.replace(/\D/g, '').slice(0, 10)
-                  e.target.value = value
-                  form.setValue("emergency_contact_2_phone", value)
-                  if (value.length === 10) {
-                    form.clearErrors("emergency_contact_2_phone")
-                  }
-                }
-              })}
+              {...form.register("emergency_contact_2_phone")}
               error={form.formState.errors.emergency_contact_2_phone?.message}
             />
             <FloatingInput
