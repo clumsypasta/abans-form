@@ -60,27 +60,32 @@ export function FamilySection({ form }: FamilySectionProps) {
                 <FloatingInput
                   label="Name"
                   value={dependant.name}
+				  className="h-12"
                   onChange={(e) => updateDependant(index, "name", e.target.value)}
                 />
                 <FloatingInput
                   label="Relationship"
                   value={dependant.relationship}
+				  className="h-12"
                   onChange={(e) => updateDependant(index, "relationship", e.target.value)}
                 />
                 <FloatingInput
                   label="Date of Birth"
                   type="date"
                   value={dependant.date_of_birth}
+				  className="h-12"
                   onChange={(e) => updateDependant(index, "date_of_birth", e.target.value)}
                 />
                 <FloatingInput
                   label="Mobile"
                   value={dependant.mobile}
+				  className="h-12"
                   onChange={(e) => updateDependant(index, "mobile", e.target.value)}
                 />
                 <FloatingInput
                   label="Occupation"
                   value={dependant.occupation}
+				  className="h-12"
                   onChange={(e) => updateDependant(index, "occupation", e.target.value)}
                 />
               </div>

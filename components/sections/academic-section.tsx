@@ -78,8 +78,8 @@ export function AcademicSection({ form }: AcademicSectionProps) {
                     value={qualification.mode_of_study} 
                     onValueChange={(value) => updateQualification(index, "mode_of_study", value)}
                   >
-                    <SelectTrigger className="h-12 rounded-xl w-full min-w-0">
-                      <SelectValue placeholder="Mode of Study" className="truncate" />
+                    <SelectTrigger>
+                      <SelectValue placeholder="Mode of Study" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="full_time">Full Time</SelectItem>
