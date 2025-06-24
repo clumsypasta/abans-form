@@ -42,12 +42,6 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
   const ALLOWED_TYPES = ['image/jpeg', 'image/jpg']
 
   const validateFile = (file: File): string | null => {
-    if (file.size > MAX_FILE_SIZE) {
-      return "File size must be less than 2MB"
-    }
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      return "Only JPEG files are allowed"
-    }
     return null
   }
 
@@ -56,21 +50,6 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
     category: 'kyc' | 'education' | 'salary',
     field: string
   ) => {
-    const error = validateFile(file)
-    const errorKey = `${category}.${field}`
-
-    if (error) {
-      setUploadErrors(prev => ({ ...prev, [errorKey]: error }))
-      return
-    }
-
-    // Clear any previous error
-    setUploadErrors(prev => {
-      const newErrors = { ...prev }
-      delete newErrors[errorKey]
-      return newErrors
-    })
-
     setDocuments(prev => ({
       ...prev,
       [category]: {
@@ -81,33 +60,7 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
   }
 
   const handleSalarySlipsUpload = (files: FileList) => {
-    const validFiles: File[] = []
-    const errors: string[] = []
-
-    Array.from(files).forEach((file, index) => {
-      const error = validateFile(file)
-      if (error) {
-        errors.push(`File ${index + 1}: ${error}`)
-      } else {
-        validFiles.push(file)
-      }
-    })
-
-    if (errors.length > 0) {
-      setUploadErrors(prev => ({ ...prev, 'salary.salary_slips': errors.join('; ') }))
-      return
-    }
-
-    if (validFiles.length > 3) {
-      setUploadErrors(prev => ({ ...prev, 'salary.salary_slips': 'Maximum 3 salary slips allowed' }))
-      return
-    }
-
-    setUploadErrors(prev => {
-      const newErrors = { ...prev }
-      delete newErrors['salary.salary_slips']
-      return newErrors
-    })
+    const validFiles: File[] = Array.from(files)
 
     setDocuments(prev => ({
       ...prev,
@@ -236,7 +189,6 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
             file={documents.kyc.aadhar}
             onUpload={(file) => handleFileUpload(file, 'kyc', 'aadhar')}
             onRemove={() => removeFile('kyc', 'aadhar')}
-            required
             errorKey="kyc.aadhar"
           />
           <FileUploadCard
@@ -244,7 +196,6 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
             file={documents.kyc.pan}
             onUpload={(file) => handleFileUpload(file, 'kyc', 'pan')}
             onRemove={() => removeFile('kyc', 'pan')}
-            required
             errorKey="kyc.pan"
           />
         </div>
@@ -262,7 +213,6 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
             file={documents.education.ssc_marksheet}
             onUpload={(file) => handleFileUpload(file, 'education', 'ssc_marksheet')}
             onRemove={() => removeFile('education', 'ssc_marksheet')}
-            required
             errorKey="education.ssc_marksheet"
           />
           <FileUploadCard
@@ -270,7 +220,6 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
             file={documents.education.ssc_passing}
             onUpload={(file) => handleFileUpload(file, 'education', 'ssc_passing')}
             onRemove={() => removeFile('education', 'ssc_passing')}
-            required
             errorKey="education.ssc_passing"
           />
           <FileUploadCard
@@ -278,7 +227,6 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
             file={documents.education.hsc_marksheet}
             onUpload={(file) => handleFileUpload(file, 'education', 'hsc_marksheet')}
             onRemove={() => removeFile('education', 'hsc_marksheet')}
-            required
             errorKey="education.hsc_marksheet"
           />
           <FileUploadCard
@@ -286,7 +234,6 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
             file={documents.education.hsc_passing}
             onUpload={(file) => handleFileUpload(file, 'education', 'hsc_passing')}
             onRemove={() => removeFile('education', 'hsc_passing')}
-            required
             errorKey="education.hsc_passing"
           />
           <FileUploadCard
@@ -294,7 +241,6 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
             file={documents.education.graduation_marksheet}
             onUpload={(file) => handleFileUpload(file, 'education', 'graduation_marksheet')}
             onRemove={() => removeFile('education', 'graduation_marksheet')}
-            required
             errorKey="education.graduation_marksheet"
           />
           <FileUploadCard
@@ -302,7 +248,6 @@ export function DocumentsSection({ form, documents, setDocuments }: DocumentsSec
             file={documents.education.graduation_passing}
             onUpload={(file) => handleFileUpload(file, 'education', 'graduation_passing')}
             onRemove={() => removeFile('education', 'graduation_passing')}
-            required
             errorKey="education.graduation_passing"
           />
           <FileUploadCard

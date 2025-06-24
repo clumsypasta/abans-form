@@ -261,40 +261,6 @@ export default function InternshipForm() {
   }
 
   const onSubmit = async (data: FormData) => {
-    // Check photo upload requirement
-    if (!photoFile) {
-      setSaveMessage("Photo upload is required")
-      setTimeout(() => setSaveMessage(""), 3000)
-      return
-    }
-
-    // Check required documents
-    const requiredKYC = documents.kyc.aadhar && documents.kyc.pan
-    const requiredEducation = documents.education.ssc_marksheet && 
-                              documents.education.ssc_passing && 
-                              documents.education.hsc_marksheet && 
-                              documents.education.hsc_passing && 
-                              documents.education.graduation_marksheet && 
-                              documents.education.graduation_passing
-
-    if (!requiredKYC) {
-      setSaveMessage("Please upload all required KYC documents")
-      setTimeout(() => setSaveMessage(""), 3000)
-      return
-    }
-
-    if (!requiredEducation) {
-      setSaveMessage("Please upload all required education documents")
-      setTimeout(() => setSaveMessage(""), 3000)
-      return
-    }
-
-    // Only check terms and conditions
-    if (!data.agreement_accepted) {
-      setSaveMessage("Please accept the terms and conditions to submit the form")
-      setTimeout(() => setSaveMessage(""), 3000)
-      return
-    }
 
     setIsSubmitting(true)
     try {
@@ -654,7 +620,7 @@ export default function InternshipForm() {
                   ) : (
                     <Button
                       type="submit"
-                      disabled={isSubmitting || !form.watch("agreement_accepted")}
+                      disabled={isSubmitting}
                       className="rounded-full px-8 py-3 bg-green-500 hover:bg-green-600 disabled:opacity-50"
                     >
                       {isSubmitting ? (
