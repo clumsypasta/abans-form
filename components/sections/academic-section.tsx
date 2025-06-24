@@ -73,14 +73,13 @@ export function AcademicSection({ form }: AcademicSectionProps) {
                   value={qualification.university}
                   onChange={(e) => updateQualification(index, "university", e.target.value)}
                 />
-                <div className="space-y-3">
-                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Mode of Study</Label>
+                <div>
                   <Select 
                     value={qualification.mode_of_study} 
                     onValueChange={(value) => updateQualification(index, "mode_of_study", value)}
                   >
                     <SelectTrigger className="h-12 rounded-xl">
-                      <SelectValue placeholder="Select mode" />
+                      <SelectValue placeholder="Mode of Study" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="full_time">Full Time</SelectItem>
