@@ -54,7 +54,7 @@ export function LanguagesSection({ form }: LanguagesSectionProps) {
               key={index}
               className="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl border border-gray-200 dark:border-gray-600"
             >
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
                 <div className="md:col-span-2">
                   <FloatingInput
                     label="Language"

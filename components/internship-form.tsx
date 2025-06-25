@@ -128,7 +128,86 @@ const formSchema = z.object({
   agreement_accepted: z.boolean().default(false),
 })
 
-type FormData = z.infer<typeof formSchema>
+type FormData = {
+  // Personal Information
+  first_name?: string;
+  middle_name?: string;
+  last_name?: string;
+  father_husband_name?: string;
+  department?: string;
+  date_of_joining?: string;
+  place_location?: string;
+  date_of_birth?: string;
+  present_address?: string;
+  permanent_address?: string;
+  phone_residence?: string;
+  phone_mobile?: string; // Making optional based on schema, will handle required in transformation
+  marital_status?: string;
+  nationality?: string;
+  blood_group?: string;
+  personal_email?: string; // Making optional based on schema, will handle required in transformation
+  uan?: string;
+  last_pf_no?: string;
+
+  // Emergency Contact
+  emergency_contact_name?: string;
+  emergency_contact_address?: string;
+  emergency_contact_relationship?: string;
+  emergency_contact_phone?: string;
+
+  // Nominee
+  nominee_name?: string;
+  nominee_dob?: string;
+  nominee_mobile?: string;
+  nominee_relationship?: string;
+
+  // Complex fields
+  languages_known?: Array<{
+    language?: string;
+    read: boolean;
+    write: boolean;
+    speak: boolean;
+  }>;
+  family_dependants?: Array<{
+    name?: string;
+    relationship?: string;
+    mobile?: string;
+    occupation?: string;
+  }>;
+  academic_qualifications?: Array<{
+    degree?: string;
+    university?: string;
+    passing_year?: string;
+    percentage?: string;
+  }>;
+  professional_qualifications?: Array<{
+    certification?: string;
+    institute?: string;
+    year?: string;
+    percentage?: string;
+  }>;
+  is_fresher: boolean; // Explicitly boolean based on default value
+  work_experience?: Array<{
+    organization?: string;
+    type?: string;
+    duration?: string;
+    designation?: string;
+    job_profile?: string;
+  }>;
+
+  // References
+  references?: Array<{
+    name?: string;
+    designation?: string;
+    company?: string;
+    address?: string;
+    contact_no?: string;
+    email?: string;
+  }>;
+
+  // Agreement
+  agreement_accepted: boolean; // Explicitly boolean based on default value
+}
 
 const sections = [
   { id: "personal", title: "Personal Details", description: "Basic personal details" },
@@ -232,7 +311,10 @@ export default function InternshipForm() {
 
   const uploadFile = async (file: File, path: string) => {
     const { data, error } = await supabase.storage.from("form-uploads").upload(path, file, { upsert: true })
-    if (error) throw error
+    if (error) {
+      console.error("Supabase Storage Upload Error:", error);
+      throw error;
+    }
     const {
       data: { publicUrl },
     } = supabase.storage.from("form-uploads").getPublicUrl(path)
@@ -242,9 +324,18 @@ export default function InternshipForm() {
   const onSubmit = async (data: FormData) => {
 
     setIsSubmitting(true)
+    let insertedData;
+    let error;
     try {
       if (!isSupabaseConfigured()) {
         setSaveMessage("Form submission is not available - Supabase not configured")
+        setTimeout(() => setSaveMessage(""), 3000)
+        setIsSubmitting(false)
+        return
+      }
+
+      if (!data.agreement_accepted) {
+        setSaveMessage("You must accept the terms and conditions to submit.")
         setTimeout(() => setSaveMessage(""), 3000)
         setIsSubmitting(false)
         return
@@ -335,14 +426,94 @@ export default function InternshipForm() {
         processedData.nominee_dob = undefined
       }
 
-      const formData: Partial<InternshipFormData> = {
-        ...processedData,
+      // Ensure fields required by InternshipFormData are not undefined
+      const transformedData: InternshipFormData = {
+        // Top-level required fields (optional in schema)
+        first_name: processedData.first_name || "",
+        last_name: processedData.last_name || "",
+        phone_mobile: processedData.phone_mobile || "",
+        personal_email: processedData.personal_email || "",
+        company_name: (processedData as any).company_name || "", // Assuming company_name is added elsewhere or handled
+
+        // Fields with default values in schema
+        is_fresher: processedData.is_fresher ?? false,
+        agreement_accepted: processedData.agreement_accepted ?? false,
+
+        // Optional fields in schema, optional in type
         photo_url: photoUrl,
+        middle_name: processedData.middle_name,
+        employee_code: (processedData as any).employee_code, // Assuming employee_code is added elsewhere or handled
+        department: processedData.department,
+        date_of_joining: processedData.date_of_joining,
+        place_location: processedData.place_location,
+        date_of_birth: processedData.date_of_birth,
+        present_address: processedData.present_address,
+        permanent_address: processedData.permanent_address,
+        phone_residence: processedData.phone_residence,
+        marital_status: processedData.marital_status,
+        nationality: processedData.nationality,
+        blood_group: processedData.blood_group,
+        uan: processedData.uan,
+        last_pf_no: processedData.last_pf_no,
+        emergency_contact_name: processedData.emergency_contact_name,
+        emergency_contact_address: processedData.emergency_contact_address,
+        emergency_contact_relationship: processedData.emergency_contact_relationship,
+        emergency_contact_phone: processedData.emergency_contact_phone,
+        nominee_name: processedData.nominee_name,
+        nominee_dob: processedData.nominee_dob,
+        nominee_mobile: processedData.nominee_mobile,
+        nominee_relationship: processedData.nominee_relationship,
+
+        // Array fields - ensure required nested fields are strings
+        languages_known: processedData.languages_known?.map(lang => ({
+          language: lang.language || "",
+          read: lang.read,
+          write: lang.write,
+          speak: lang.speak,
+        })) || [],
+        family_dependants: processedData.family_dependants?.map(dep => ({
+          name: dep.name || "",
+          relationship: dep.relationship || "",
+          mobile: dep.mobile || "",
+          occupation: dep.occupation || "",
+        })) || [],
+        academic_qualifications: processedData.academic_qualifications?.map(acad => ({
+          degree: acad.degree || "",
+          university: acad.university || "",
+          passing_year: acad.passing_year || "",
+          percentage: acad.percentage || "",
+        })) || [],
+        professional_qualifications: processedData.professional_qualifications?.map(prof => ({
+          certification: prof.certification || "",
+          institute: prof.institute || "",
+          year: prof.year || "",
+          percentage: prof.percentage || "",
+        })) || [],
+        work_experience: processedData.work_experience?.map(work => ({
+          organization: work.organization || "",
+          type: work.type || "",
+          duration: work.duration || "",
+          designation: work.designation || "",
+          job_profile: work.job_profile || "",
+        })) || [],
+        references: processedData.references?.map(ref => ({
+          name: ref.name || "",
+          designation: ref.designation || "",
+          company: ref.company || "",
+          address: ref.address || "",
+          contact_no: ref.contact_no || "",
+          email: ref.email || "",
+        })) || [],
+
+        // Document URLs
         ...documentUrls,
+
+        // Status tracking
         sections_completed: Array.from(completedSections).map((i) => sections[i].id),
       }
 
-      const { data: insertedData, error } = await supabase.from("internship_forms").insert([formData]).select()
+
+      const { data: insertedData, error } = await supabase.from("internship_forms").insert([transformedData]).select();
 
       if (error) {
         console.error("Supabase error:", error)

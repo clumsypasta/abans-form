@@ -26,7 +26,7 @@ export function AcademicSection({ form }: AcademicSectionProps) {
     const currentQualifications = form.getValues("academic_qualifications") || []
     form.setValue(
       "academic_qualifications",
-      currentQualifications.filter((_, i) => i !== index),
+      currentQualifications.filter((_: any, i: number) => i !== index),
     )
   }
 
@@ -67,19 +67,21 @@ export function AcademicSection({ form }: AcademicSectionProps) {
                   label="Degree"
                   value={qualification.degree}
                   onChange={(e) => updateQualification(index, "degree", e.target.value)}
+                  className="pt-6 pb-2"
                 />
                 <FloatingInput
                   label="University"
                   value={qualification.university}
                   onChange={(e) => updateQualification(index, "university", e.target.value)}
+                  className="pt-6 pb-2"
                 />
                 <div>
-                  <Select 
-                    value={qualification.mode_of_study} 
+                  <Select
+                    value={qualification.mode_of_study}
                     onValueChange={(value) => updateQualification(index, "mode_of_study", value)}
                   >
-                    <SelectTrigger className="h-12 rounded-xl w-full min-w-0">
-                      <SelectValue placeholder="Mode of Study" className="truncate" />
+                    <SelectTrigger className="rounded-xl w-full pt-6 pb-2 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100">
+                      <SelectValue placeholder="Mode of Study" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="full_time">Full Time</SelectItem>
@@ -92,11 +94,13 @@ export function AcademicSection({ form }: AcademicSectionProps) {
                   label="Passing Year"
                   value={qualification.passing_year}
                   onChange={(e) => updateQualification(index, "passing_year", e.target.value)}
+                  className="pt-6 pb-2"
                 />
                 <FloatingInput
                   label="% Marks"
                   value={qualification.percentage}
                   onChange={(e) => updateQualification(index, "percentage", e.target.value)}
+                  className="pt-6 pb-2"
                 />
               </div>
               <div className="mt-4 flex justify-end">
